@@ -32,7 +32,7 @@
 </dependency>
 </dependencies>
 <build>
-    <sourceDirectory>src/yqt/mc/fixedpowerups/</sourceDirectory>
+    <sourceDirectory>src/mc/yqt/fixedpowerups/</sourceDirectory>
     <resources>
         <resource>
             <directory>src/</directory>

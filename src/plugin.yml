@@ -1,5 +1,5 @@
-name: CPSTest
-main: mc.yqt.cpstest.ClickSpeed
+name: FixedPowerups
+main: mc.yqt.fixedpowerups.FixedPowerups
 version: 1.0
 author: yqt1001
 depend: [ProtocolLib]
