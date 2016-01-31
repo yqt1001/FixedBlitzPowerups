@@ -1,7 +1,6 @@
 package mc.yqt.fixedpowerups;
 
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -19,11 +18,16 @@ public abstract class Powerup {
 	public abstract String getName();
 	public abstract List<String> getLore();
 	public abstract ItemStack getIdentifier();
+	public abstract boolean requiresNMS();
 	
 	public abstract void powerup(Player p);
 	
 	/* static methods to manage powerups */
-	private static LinkedList<Powerup> powerups = new LinkedList<Powerup>(Arrays.asList(new Invoker(), new WitherWarrior()));
+	private static HashMap<String, Powerup> powerups = new HashMap<String, Powerup>();
+	static {
+		powerups.put("Invoker", new Invoker());
+		powerups.put("Wither Warrior", new WitherWarrior());
+	}
 	
 	/**
 	 * Gets a powerup given the name
@@ -31,9 +35,8 @@ public abstract class Powerup {
 	 * @return
 	 */
 	public static Powerup getPowerup(String powerup) {
-		for(Powerup p : powerups)
-			if(p.getName().equals(powerup))
-				return p;
+		if(powerups.containsKey(powerup))
+			return powerups.get(powerup);
 		
 		return null;
 	}
@@ -45,9 +48,9 @@ public abstract class Powerup {
 	public static void openPowerupGUI(Player p) {
 		Inventory i = Bukkit.createInventory(p, 27, "Blitz Powerups");
 		
-		int index = 2;
+		int index = 1;
 		
-		for(Powerup pu : powerups) {
+		for(Powerup pu : powerups.values()) {
 			
 			//format item
 			ItemStack is = pu.getIdentifier();
@@ -89,9 +92,19 @@ public abstract class Powerup {
 			
 			//search for the specified powerup
 			Powerup p;
-			if((p = getPowerup(s)) != null)
+			if((p = getPowerup(s)) != null) {
+				//if it requires NMS, make sure it is enabled
+				if(p.requiresNMS() && !FixedPowerups.getNMSState()) {
+					e.getWhoClicked().sendMessage("§cNMS is disabled!");
+					return;
+				}
+				
 				//activate powerup
 				p.powerup((Player) e.getWhoClicked());
+				
+				//successful, close inventory
+				e.getWhoClicked().closeInventory();
+			}
 			
 		}
 	}

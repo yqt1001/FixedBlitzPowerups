@@ -31,7 +31,12 @@ public class Invoker extends Powerup {
 	}
 	
 	@Override
+	public boolean requiresNMS() {
+		return false;
+	}
+	
+	@Override
 	public void powerup(Player p) {
-		
+		p.sendMessage("invoked invoker");
 	}
 }
