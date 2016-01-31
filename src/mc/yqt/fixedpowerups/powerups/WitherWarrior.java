@@ -1,19 +1,26 @@
 package mc.yqt.fixedpowerups.powerups;
 
+import java.util.List;
+
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import mc.yqt.fixedpowerups.Powerup;
 
 public class WitherWarrior extends Powerup {
 
+	public WitherWarrior() {
+		
+	}
+	
 	@Override
 	public String getName() {
 		return "Wither Warrior";
 	}
 
 	@Override
-	public String[] getLore() {
+	public List<String> getLore() {
 		return null;
 	}
 
@@ -23,7 +30,7 @@ public class WitherWarrior extends Powerup {
 	}
 
 	@Override
-	public void powerup() {
+	public void powerup(Player p) {
 		// TODO Auto-generated method stub
 		
 	}
