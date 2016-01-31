@@ -4,13 +4,13 @@ import java.util.LinkedList;
 
 import org.bukkit.inventory.ItemStack;
 
-abstract class Powerup {
+public abstract class Powerup {
 
-	abstract String getName();
-	abstract String[] getLore();
-	abstract ItemStack getIdentifier();
+	public abstract String getName();
+	public abstract String[] getLore();
+	public abstract ItemStack getIdentifier();
 	
-	abstract void powerup();
+	public abstract void powerup();
 	
 	/* static methods to manage powerups */
 	private static LinkedList<Powerup> powerups;
