@@ -4,7 +4,5 @@ version: 1.0
 author: yqt1001
 depend: [ProtocolLib]
 commands:
-   cps:
-      description: Starts cps test
-      usage: /<command>
-      aliases: [cpstest, testcps]
+   powerup:
+      description: Fixed powerup GUI
