@@ -3,7 +3,6 @@ package mc.yqt.fixedpowerups.powerups;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -15,7 +14,7 @@ import mc.yqt.fixedpowerups.utils.NMSEntities;
 
 public class WitherWarrior extends Powerup {
 
-	private Entity wither;
+	private RideableWither wither;
 	
 	public WitherWarrior() {
 		
@@ -43,14 +42,20 @@ public class WitherWarrior extends Powerup {
 
 	@Override
 	public void powerup(final Player p) {
-		this.wither = (Entity) NMSEntities.spawnEntity(new RideableWither(p.getWorld()), p.getLocation());
-		this.wither.setPassenger(p);
+		try {
+			//spawn wither and set player as passenger
+			this.wither = (RideableWither) NMSEntities.spawnEntity(new RideableWither(p.getWorld()), p.getLocation());
+			this.wither.setPassenger(p);
+		} catch(Exception e) {
+			e.printStackTrace();
+			FixedPowerups.setNMSState(false);
+		}
 		
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				p.sendMessage("Removing wither");
-				wither.remove();
+				wither.die();
 			}
 		}.runTaskLater(FixedPowerups.getThis(), 300l);
 	}

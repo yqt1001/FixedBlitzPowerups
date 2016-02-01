@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import mc.yqt.fixedpowerups.listeners.InventoryEvents;
+import mc.yqt.fixedpowerups.listeners.*;
 
 public class FixedPowerups extends JavaPlugin {
 
@@ -18,6 +18,8 @@ public class FixedPowerups extends JavaPlugin {
 	public void onEnable() {
 		
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), this);
+		Bukkit.getPluginManager().registerEvents(new EntityEvents(), this);
+		ProtocolListeners.onEnable();
 	}
 	
 	@Override

@@ -103,6 +103,7 @@ public abstract class Powerup {
 				p.powerup((Player) e.getWhoClicked());
 				
 				//successful, close inventory
+				e.setCancelled(true);
 				e.getWhoClicked().closeInventory();
 			}
 			
