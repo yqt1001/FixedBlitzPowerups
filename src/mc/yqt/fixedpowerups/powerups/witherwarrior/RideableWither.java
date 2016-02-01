@@ -17,6 +17,7 @@ import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityWither;
 import net.minecraft.server.v1_8_R3.GenericAttributes;
+import net.minecraft.server.v1_8_R3.PathfinderGoal;
 import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
 
 public class RideableWither extends EntityWither {
@@ -28,13 +29,14 @@ public class RideableWither extends EntityWither {
 		
 		super(((CraftWorld) world).getHandle());
 		
-		//clear existing path finding and target finding
+		//clear existing path finding and target selectors
 		((List <?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.goalSelector)).clear();
 		((List <?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.goalSelector)).clear();
-		((List <?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.targetSelector)).clear();
+		((List <?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).clear();
 		((List <?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.targetSelector)).clear();
 		
-		//eventually add a pathfinder
+		//add a target, nearest player
+		this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
 	}
 	
 	@Override
@@ -56,7 +58,7 @@ public class RideableWither extends EntityWither {
 	}
 	
 	@Override
-	public void g(float sideMot, float forMot) {
+	public void g(float f, float f1) {
 		//wither movement
 		
 		if((this.passenger == null) || (!(this.passenger instanceof EntityHuman)))
@@ -89,6 +91,19 @@ public class RideableWither extends EntityWither {
 		this.pitch = passenger.pitch;
 		
 	    super.g(movStrafe, movForward);
+	    
+	    //force update the target, that way it's not incredibly unfair for a single player
+		try {
+			Object targeter = ((List <?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).get(0);
+			Class< ?> pfitemclass = PathfinderGoalSelector.class.getDeclaredClasses()[0];
+			PathfinderGoal pfg = (PathfinderGoal) NMSReflect.getPrivateField("a", pfitemclass, targeter);
+			
+			if(pfg.a())
+		    	pfg.c();
+		} catch (Exception e) {
+			FixedPowerups.setNMSState(false);
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

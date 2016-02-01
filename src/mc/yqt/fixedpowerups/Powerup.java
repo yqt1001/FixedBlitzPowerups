@@ -98,15 +98,15 @@ public abstract class Powerup {
 					e.getWhoClicked().sendMessage("§cNMS is disabled!");
 					return;
 				}
-				
 				//activate powerup
-				p.powerup((Player) e.getWhoClicked());
+				else
+					p.powerup((Player) e.getWhoClicked());
+				
 				
 				//successful, close inventory
 				e.setCancelled(true);
 				e.getWhoClicked().closeInventory();
 			}
-			
 		}
 	}
 }

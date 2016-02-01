@@ -12,7 +12,7 @@ import mc.yqt.fixedpowerups.listeners.*;
 public class FixedPowerups extends JavaPlugin {
 
 	//god variable that is used to ensure that if any NMS errors occur at any point, shut down all NMS features
-	private static boolean NMSEnabled = true;
+	private static boolean NMSenabled = true;
 	
 	@Override
 	public void onEnable() {
@@ -44,11 +44,19 @@ public class FixedPowerups extends JavaPlugin {
 		return Bukkit.getPluginManager().getPlugin("FixedPowerups");
 	}
 	
+	/**
+	 * Gets NMS enabled
+	 * @return boolean
+	 */
 	public static boolean getNMSState() {
-		return NMSEnabled;
+		return NMSenabled;
 	}
 	
+	/**
+	 * Sets NMS enabled
+	 * @param New state
+	 */
 	public static void setNMSState(boolean newState) {
-		NMSEnabled = newState;
+		NMSenabled = newState;
 	}
 }

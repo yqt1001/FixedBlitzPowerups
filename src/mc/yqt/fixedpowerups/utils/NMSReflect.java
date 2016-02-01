@@ -1,6 +1,7 @@
 package mc.yqt.fixedpowerups.utils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
 
@@ -22,5 +23,20 @@ public class NMSReflect {
 		}
 		
 		return obj;
+	}
+	
+	public static Method getPrivateMethod(String name, Class< ?> clazz, Class< ?> ... paramTypes) {
+		
+		Method m = null;
+		
+		try {
+			m = clazz.getDeclaredMethod(name, paramTypes);
+			m.setAccessible(true);
+		} catch (Exception e) {
+			FixedPowerups.setNMSState(false);
+			e.printStackTrace();
+		}
+		
+		return m;
 	}
 }
