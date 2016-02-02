@@ -56,6 +56,8 @@ public class WitherWarrior extends Powerup {
 			public void run() {
 				p.sendMessage("Removing wither");
 				wither.die();
+				Powerup.powerupActive = false;
+				p.setMaximumNoDamageTicks(20);
 			}
 		}.runTaskLater(FixedPowerups.getThis(), 300l);
 	}

@@ -24,6 +24,8 @@ public abstract class Powerup {
 	
 	/* static methods to manage powerups */
 	private static HashMap<String, Powerup> powerups = new HashMap<String, Powerup>();
+	public static boolean powerupActive = false;
+	
 	static {
 		powerups.put("Invoker", new Invoker());
 		powerups.put("Wither Warrior", new WitherWarrior());
@@ -78,10 +80,16 @@ public abstract class Powerup {
 	 * @param Event
 	 */
 	public static void onGUIEvent(InventoryClickEvent e) {
+		e.setCancelled(true);
+		
 		if(e.getCurrentItem() == null)
 			return;
 		
 		if(e.getCurrentItem().getItemMeta() == null)
+			return;
+		
+		//if there is a powerup currently active, stop now
+		if(powerupActive)
 			return;
 		
 		if(e.getCurrentItem().getItemMeta().getDisplayName() != null)
@@ -99,12 +107,13 @@ public abstract class Powerup {
 					return;
 				}
 				//activate powerup
-				else
+				else {
 					p.powerup((Player) e.getWhoClicked());
+					powerupActive = true;
+				}
 				
 				
 				//successful, close inventory
-				e.setCancelled(true);
 				e.getWhoClicked().closeInventory();
 			}
 		}

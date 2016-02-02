@@ -5,13 +5,15 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 
+import mc.yqt.fixedpowerups.powerups.witherwarrior.HarmlessWitherSkull;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityTypes;
 
 public enum NMSEntities {
 
-	RIDEABLE_WITHER("Wither", 64, RideableWither.class);
+	RIDEABLE_WITHER("Wither", 64, RideableWither.class),
+	HARMLESS_SKULL("WitherSkull", 19, HarmlessWitherSkull.class);
 	
 	@SuppressWarnings("unchecked")
 	private NMSEntities(String name, int id, Class<? extends Entity> e) {

@@ -2,6 +2,7 @@ package mc.yqt.fixedpowerups.powerups.witherwarrior;
 
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -12,7 +13,9 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
 import mc.yqt.fixedpowerups.listeners.ProtocolListeners;
+import mc.yqt.fixedpowerups.utils.NMSEntities;
 import mc.yqt.fixedpowerups.utils.NMSReflect;
+import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityWither;
@@ -23,7 +26,6 @@ import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
 public class RideableWither extends EntityWither {
 
 	private Player pax;
-	private int moveDownwards = 0;
 	
 	public RideableWither(World world) {
 		
@@ -53,6 +55,14 @@ public class RideableWither extends EntityWither {
 	}
 	
 	@Override
+	public void initAttributes() {
+		//override the default movement speed to make wither quicker
+		super.initAttributes();
+		
+	    getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(0.9D);
+	}
+	
+	@Override
 	public void E() {
 		//stop wither from damaging blocks
 	}
@@ -77,10 +87,13 @@ public class RideableWither extends EntityWither {
 		if(jump)
 			this.motY = 0.3D;
 		else {
-			if(this.moveDownwards > 0) {
-				//if shift has been pressed to get wither to descend
-				this.motY = -0.5D;
-				moveDownwards--;
+			if(movForward == 0)
+				//if S and W or nothing has been pressed, descend slowly
+				this.motY = -0.1D;
+			else if(movForward < 0) {
+				//if S has been pressed, descend
+				this.motY = -0.2D;
+				movForward = 0;
 			} else
 				//wither will otherwise naturally descend, so stop that
 				this.motY = 0.0D;
@@ -89,6 +102,8 @@ public class RideableWither extends EntityWither {
 		//make sure wither follows passenger yaw and pitch
 		this.yaw = passenger.yaw;
 		this.pitch = passenger.pitch;
+		
+		//Bukkit.broadcastMessage("motX: " + motX + "  motZ: " + motZ + " also, movForward: " + movForward);
 		
 	    super.g(movStrafe, movForward);
 	    
@@ -107,16 +122,26 @@ public class RideableWither extends EntityWither {
 	}
 	
 	@Override
-	public void initAttributes() {
-		//override the default movement speed to make wither quicker
-		super.initAttributes();
+	public void a(EntityLiving entityliving, float f) {
+		//custom wither skull
 		
-	    getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(1.0D);
-	}
-	
-	private void descend() {
-		//move downwards
-		this.moveDownwards++;
+		//spawn about once per second
+		if(Math.random() > 0.08)
+			return;
+		
+		this.world.a(null, 1014, new BlockPosition(this), 0);
+		
+	    double d3 = this.locX;
+	    double d4 = this.locY + 3.0D;
+	    double d5 = this.locZ;
+	    double d6 = entityliving.locX - d3;
+	    double d7 = (entityliving.locY + entityliving.getHeadHeight() * 0.5D) - d4;
+	    double d8 = entityliving.locZ - d5;
+	    
+	    HarmlessWitherSkull entitywitherskull = (HarmlessWitherSkull) NMSEntities.spawnEntity(new HarmlessWitherSkull(this.pax.getWorld(), this, d6, d7, d8, ((CraftPlayer) this.pax).getHandle()), new Location(this.pax.getWorld(), d3, d4, d5));
+	    
+	    if(this.random.nextBoolean()) 
+	    	entitywitherskull.setCharged(true);
 	}
 	
 	/**
@@ -147,8 +172,6 @@ public class RideableWither extends EntityWither {
 		
 		if(cw.getHandle() instanceof RideableWither) {
 			final RideableWither rw = (RideableWither) cw.getHandle();
-			
-			rw.descend();
 			
 			//intercept the packet that gets sent when the player dismounts
 			ProtocolListeners.interceptWitherDetachPacket = cw.getEntityId();

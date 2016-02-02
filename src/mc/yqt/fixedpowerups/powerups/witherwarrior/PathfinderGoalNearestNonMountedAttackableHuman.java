@@ -1,7 +1,5 @@
 package mc.yqt.fixedpowerups.powerups.witherwarrior;
 
-import java.lang.reflect.Method;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -10,11 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityTargetEvent;
 
-import mc.yqt.fixedpowerups.FixedPowerups;
-import mc.yqt.fixedpowerups.utils.NMSReflect;
 import net.minecraft.server.v1_8_R3.EntityCreature;
-import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.EntityWither;
 import net.minecraft.server.v1_8_R3.PathfinderGoalTarget;
 
 public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGoalTarget {
@@ -55,13 +49,7 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 		if(!this.e.hasLineOfSight(((CraftPlayer) this.newTarget).getHandle()))
 			return;
 		
-		try {
-			Method attack = NMSReflect.getPrivateMethod("a", EntityWither.class, int.class, EntityLiving.class);
-			//attack.invoke(this.e, 0, ((CraftPlayer) this.newTarget).getHandle());
-		} catch (Exception e) {
-			FixedPowerups.setNMSState(false);
-			e.printStackTrace();
-		}
+		((RideableWither) this.e).a(((CraftPlayer) this.newTarget).getHandle(), 0.0F);
 	}
 	
 	//find nearest player using Bukkit API
@@ -76,7 +64,7 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 			}
 		}
 		
-		if(dist < 10) 
+		if(dist < 30) 
 			return nearest;
 		 else
 			return null;
