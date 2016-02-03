@@ -22,8 +22,8 @@ public class PeacefulType extends WitherType {
 		//don't attack the target, give them regeneration and saturation
 		if(skull.isCharged())
 		{
-			e.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 3));
-			e.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 200, 1));
+			e.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 3), true);
+			e.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 200, 1), true);
 		}
 		else
 		{

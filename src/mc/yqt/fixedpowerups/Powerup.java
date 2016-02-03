@@ -9,20 +9,49 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import mc.yqt.fixedpowerups.powerups.Invoker;
 import mc.yqt.fixedpowerups.powerups.WitherWarrior;
 
 public abstract class Powerup {
-
-	public abstract String getName();
-	public abstract List<String> getLore();
-	public abstract ItemStack getIdentifier();
-	public abstract boolean requiresNMS();
+	
+	private String name;
+	private List<String> lore;
+	private ItemStack identifier;
+	private boolean reqNMS;
 	
 	public abstract void powerup(Player p);
 	
-	/* static methods to manage powerups */
+	public Powerup(String s1, ItemStack id, boolean nms) {
+		this.name = s1;
+		this.identifier = id;
+		this.reqNMS = nms;
+		this.lore = null;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public List<String> getLore() {
+		return this.lore;
+	}
+	
+	public void setLore(List<String> lore) {
+		this.lore = lore;
+	}
+	
+	public ItemStack getIdentifier() {
+		return this.identifier;
+	}
+	
+	public boolean requiresNMS() {
+		return this.reqNMS;
+	}
+	
+	/* Static methods to manage powerups */
 	private static HashMap<String, Powerup> powerups = new HashMap<String, Powerup>();
 	public static boolean powerupActive = false;
 	
@@ -90,7 +119,10 @@ public abstract class Powerup {
 		
 		//if there is a powerup currently active, stop now
 		if(powerupActive)
+		{
+			e.getWhoClicked().sendMessage("§cAnother powerup is currently active!");
 			return;
+		}
 		
 		if(e.getCurrentItem().getItemMeta().getDisplayName() != null)
 		{
@@ -102,14 +134,23 @@ public abstract class Powerup {
 			Powerup p;
 			if((p = getPowerup(s)) != null) {
 				//if it requires NMS, make sure it is enabled
-				if(p.requiresNMS() && !FixedPowerups.getNMSState()) {
+				if(p.requiresNMS() && !FixedPowerups.getNMSState()) 
+				{
 					e.getWhoClicked().sendMessage("§cNMS is disabled!");
 					return;
 				}
-				//activate powerup
-				else {
+				else 
+				{
+					
+					//broadcast message
+					Bukkit.broadcastMessage("§e" + e.getWhoClicked().getName() + " has activated the §a§l" + s + " §epowerup!");
+					
+					//activate powerup
 					p.powerup((Player) e.getWhoClicked());
 					powerupActive = true;
+					
+					//give player regen 2 for 30 seconds as standard
+					e.getWhoClicked().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
 				}
 				
 				

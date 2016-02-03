@@ -1,15 +1,29 @@
 package mc.yqt.fixedpowerups.powerups.invoker;
 
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class InvokerSpell {
 
-	public abstract String getName();
-	public abstract String[] getLore();
+	private String name;
+	private List<String> lore;
 	
 	public abstract void spell();
 	
-	/* static methods to manage spells */
+	public InvokerSpell(String s1, List<String> s2) {
+		this.name = s1;
+		this.lore = s2;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public List<String> getLore() {
+		return this.lore;
+	}
+	
+	/* Static methods to manage spells */
 	private static HashMap<String, InvokerSpell> spells = new HashMap<String, InvokerSpell>();
 	static {
 		

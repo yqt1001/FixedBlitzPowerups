@@ -10,13 +10,13 @@ public abstract class WitherType {
 	private String displayName;
 	private int maxHealth;
 	
+	public abstract void attack(HarmlessWitherSkull skull, RideableWither wither, LivingEntity e);
+	public abstract void attackCosmetic(HarmlessWitherSkull e);
+	
 	public WitherType(String s, int h) {
 		this.displayName = s;
 		this.maxHealth = h;
 	}
-	
-	public abstract void attack(HarmlessWitherSkull skull, RideableWither wither, LivingEntity e);
-	public abstract void attackCosmetic(HarmlessWitherSkull e);
 	
 	public String getDisplayName() {
 		return this.displayName;
