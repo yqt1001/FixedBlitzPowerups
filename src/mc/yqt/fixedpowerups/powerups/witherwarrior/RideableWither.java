@@ -13,6 +13,10 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
 import mc.yqt.fixedpowerups.listeners.ProtocolListeners;
+import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.AngryType;
+import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.LethalType;
+import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.PeacefulType;
+import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.WitherType;
 import mc.yqt.fixedpowerups.utils.NMSEntities;
 import mc.yqt.fixedpowerups.utils.NMSReflect;
 import net.minecraft.server.v1_8_R3.BlockPosition;
@@ -24,28 +28,47 @@ import net.minecraft.server.v1_8_R3.PathfinderGoal;
 import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
 
 public class RideableWither extends EntityWither {
-
-	private Player pax;
 	
-	public RideableWither(World world) {
+	/* Wither types enum */
+	public enum WitherTypes {
+		PEACEFUL(new PeacefulType()), LETHAL(new LethalType()), ANGRY(new AngryType());
 		
-		super(((CraftWorld) world).getHandle());
+		private WitherType obj;
 		
-		//clear existing path finding and target selectors
-		((List <?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.goalSelector)).clear();
-		((List <?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.goalSelector)).clear();
-		((List <?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).clear();
-		((List <?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.targetSelector)).clear();
+		private WitherTypes(WitherType wt) {
+			this.obj = wt;
+		}
 		
-		//add a target, nearest player
-		this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
+		public WitherType getType() {
+			return this.obj;
+		}
 	}
 	
+	private Player pax;
+	private WitherTypes type;
+
+	public RideableWither(World world, WitherTypes type) {
+
+		super(((CraftWorld) world).getHandle());
+
+		//clear existing path finding and target selectors
+		((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.goalSelector)).clear();
+		((List<?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.goalSelector)).clear();
+		((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).clear();
+		((List<?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.targetSelector)).clear();
+
+		//add a target, nearest player
+		this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
+		
+		this.type = type;
+	}
+
 	@Override
 	public void h() {
 		super.h();
-		
-		//set name, delayed slightly otherwise datawatcher is not properly instantiated
+
+		//set name, delayed slightly otherwise datawatcher is not properly
+		//instantiated
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -53,36 +76,36 @@ public class RideableWither extends EntityWither {
 			}
 		}.runTaskLater(FixedPowerups.getThis(), 1L);
 	}
-	
+
 	@Override
 	public void initAttributes() {
 		//override the default movement speed to make wither quicker
 		super.initAttributes();
-		
-	    getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(0.9D);
+
+		getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(0.9D);
 	}
-	
+
 	@Override
 	public void E() {
 		//stop wither from damaging blocks
 	}
-	
+
 	@Override
 	public void g(float f, float f1) {
 		//wither movement
-		
+
 		if((this.passenger == null) || (!(this.passenger instanceof EntityHuman)))
 			return;
-		
+
 		EntityLiving passenger = (EntityLiving) this.passenger;
-		
+
 		this.fallDistance = 0.0F;
 
-	    //get passenger keyboard inputs
+		//get passenger keyboard inputs
 		float movForward = passenger.ba;
 		float movStrafe = passenger.aZ;
 		boolean jump = (boolean) NMSReflect.getPrivateField("aY", EntityLiving.class, passenger);
-		
+
 		//move upwards
 		if(jump)
 			this.motY = 0.3D;
@@ -98,52 +121,56 @@ public class RideableWither extends EntityWither {
 				//wither will otherwise naturally descend, so stop that
 				this.motY = 0.0D;
 		}
-		
+
 		//make sure wither follows passenger yaw and pitch
 		this.yaw = passenger.yaw;
 		this.pitch = passenger.pitch;
-		
-		//Bukkit.broadcastMessage("motX: " + motX + "  motZ: " + motZ + " also, movForward: " + movForward);
-		
-	    super.g(movStrafe, movForward);
-	    
-	    //force update the target, that way it's not incredibly unfair for a single player
+
+		//Bukkit.broadcastMessage("motX: " + motX + " motZ: " + motZ + " also,
+		//movForward: " + movForward);
+
+		super.g(movStrafe, movForward);
+
+		//force update the target, that way it's not incredibly unfair for a
+		//single player
 		try {
-			Object targeter = ((List <?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).get(0);
-			Class< ?> pfitemclass = PathfinderGoalSelector.class.getDeclaredClasses()[0];
+			Object targeter = ((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).get(0);
+			Class<?> pfitemclass = PathfinderGoalSelector.class.getDeclaredClasses()[0];
 			PathfinderGoal pfg = (PathfinderGoal) NMSReflect.getPrivateField("a", pfitemclass, targeter);
-			
-			if(pfg.a())
-		    	pfg.c();
-		} catch (Exception e) {
+
+			if (pfg.a())
+				pfg.c();
+		} catch(Exception e) {
 			FixedPowerups.setNMSState(false);
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void a(EntityLiving entityliving, float f) {
 		//custom wither skull
-		
-		//spawn about once per second
-		if(Math.random() > 0.08)
+
+		//spawn about twice per second
+		if(Math.random() > 0.12)
 			return;
-		
+
 		this.world.a(null, 1014, new BlockPosition(this), 0);
-		
-	    double d3 = this.locX;
-	    double d4 = this.locY + 3.0D;
-	    double d5 = this.locZ;
-	    double d6 = entityliving.locX - d3;
-	    double d7 = (entityliving.locY + entityliving.getHeadHeight() * 0.5D) - d4;
-	    double d8 = entityliving.locZ - d5;
-	    
-	    HarmlessWitherSkull entitywitherskull = (HarmlessWitherSkull) NMSEntities.spawnEntity(new HarmlessWitherSkull(this.pax.getWorld(), this, d6, d7, d8, ((CraftPlayer) this.pax).getHandle()), new Location(this.pax.getWorld(), d3, d4, d5));
-	    
-	    if(this.random.nextBoolean()) 
-	    	entitywitherskull.setCharged(true);
+
+		double d3 = this.locX;
+		double d4 = this.locY + 3.0D;
+		double d5 = this.locZ;
+		double d6 = entityliving.locX - d3;
+		double d7 = (entityliving.locY + entityliving.getHeadHeight() * 0.5D) - d4;
+		double d8 = entityliving.locZ - d5;
+
+		HarmlessWitherSkull entitywitherskull = (HarmlessWitherSkull) NMSEntities.spawnEntity(
+				new HarmlessWitherSkull(this.pax.getWorld(), this, d6, d7, d8, ((CraftPlayer) this.pax).getHandle()), new Location(this.pax.getWorld(), d3, d4, d5));
+
+		//1/10 chance of a charged skull
+		if(Math.random() < 0.1)
+			entitywitherskull.setCharged(true);
 	}
-	
+
 	/**
 	 * Sets the passenger
 	 * @param Player
@@ -152,7 +179,7 @@ public class RideableWither extends EntityWither {
 		((CraftPlayer) p).getHandle().mount(this);
 		this.pax = p;
 	}
-	
+
 	/**
 	 * Gets the passenger
 	 * @return
@@ -161,21 +188,29 @@ public class RideableWither extends EntityWither {
 		return this.pax;
 	}
 	
+	/**
+	 * Gets the wither type
+	 * @return
+	 */
+	public WitherTypes getType() {
+		return this.type;
+	}
+
 	/* Static methods */
-	
+
 	/**
 	 * Handles entity dismount event for this mob
 	 * @param Event
 	 */
 	public static void dismountEvent(final EntityDismountEvent e) {
 		CraftWither cw = (CraftWither) e.getDismounted();
-		
+
 		if(cw.getHandle() instanceof RideableWither) {
 			final RideableWither rw = (RideableWither) cw.getHandle();
-			
+
 			//intercept the packet that gets sent when the player dismounts
 			ProtocolListeners.interceptWitherDetachPacket = cw.getEntityId();
-			
+
 			new BukkitRunnable() {
 				@Override
 				public void run() {
@@ -185,5 +220,4 @@ public class RideableWither extends EntityWither {
 			}.runTaskLater(FixedPowerups.getThis(), 1L);
 		}
 	}
-
 }
