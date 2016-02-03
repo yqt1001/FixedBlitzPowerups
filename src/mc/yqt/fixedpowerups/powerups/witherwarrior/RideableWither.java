@@ -23,7 +23,6 @@ import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityWither;
-import net.minecraft.server.v1_8_R3.GenericAttributes;
 import net.minecraft.server.v1_8_R3.PathfinderGoal;
 import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
 
@@ -67,22 +66,13 @@ public class RideableWither extends EntityWither {
 	public void h() {
 		super.h();
 
-		//set name, delayed slightly otherwise datawatcher is not properly
-		//instantiated
+		//set name, delayed slightly otherwise datawatcher is not properly instantiated
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				datawatcher.watch(2, "§e" + pax.getName() + " the §cWITHER WARRIOR");
 			}
 		}.runTaskLater(FixedPowerups.getThis(), 1L);
-	}
-
-	@Override
-	public void initAttributes() {
-		//override the default movement speed to make wither quicker
-		super.initAttributes();
-
-		getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(0.9D);
 	}
 
 	@Override
@@ -126,19 +116,18 @@ public class RideableWither extends EntityWither {
 		this.yaw = passenger.yaw;
 		this.pitch = passenger.pitch;
 
-		//Bukkit.broadcastMessage("motX: " + motX + " motZ: " + motZ + " also,
-		//movForward: " + movForward);
+		//Bukkit.broadcastMessage("motX: " + motX + " motZ: " + motZ);
+		//I still want to try and speed up the wither but is it that important? I'm not sure
 
 		super.g(movStrafe, movForward);
 
-		//force update the target, that way it's not incredibly unfair for a
-		//single player
+		//force update the target, that way it's not incredibly unfair for a single player
 		try {
 			Object targeter = ((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).get(0);
 			Class<?> pfitemclass = PathfinderGoalSelector.class.getDeclaredClasses()[0];
 			PathfinderGoal pfg = (PathfinderGoal) NMSReflect.getPrivateField("a", pfitemclass, targeter);
 
-			if (pfg.a())
+			if(pfg.a())
 				pfg.c();
 		} catch(Exception e) {
 			FixedPowerups.setNMSState(false);

@@ -10,9 +10,8 @@ public abstract class InvokerSpell {
 	
 	public abstract void spell();
 	
-	public InvokerSpell(String s1, List<String> s2) {
+	public InvokerSpell(String s1) {
 		this.name = s1;
-		this.lore = s2;
 	}
 	
 	public String getName() {
@@ -21,6 +20,10 @@ public abstract class InvokerSpell {
 	
 	public List<String> getLore() {
 		return this.lore;
+	}
+	
+	public void setLore(List<String> lore) {
+		this.lore = lore;
 	}
 	
 	/* Static methods to manage spells */
