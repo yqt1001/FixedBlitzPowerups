@@ -2,7 +2,6 @@ package mc.yqt.fixedpowerups.powerups.witherwarrior;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
@@ -18,6 +17,8 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 	 * The RideableWither.class entities use this to target a player that is not their passenger
 	 */
 	
+	private static final int ATTACK_RANGE = 30;
+	
 	private Player newTarget;
 	
 	public PathfinderGoalNearestNonMountedAttackableHuman(EntityCreature creature, boolean flag) {
@@ -27,7 +28,7 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 	@Override
 	public boolean a() {
 		//using bukkit methods to find nearest player, don't feel like looking through all that obfuscated NMS code to do whatever they do
-		Player target = nearestPlayer(new Location((World) this.e.getWorld().getWorld(), this.e.locX, this.e.locY, this.e.locZ));
+		Player target = nearestPlayer(this.e.getBukkitEntity().getLocation());
 		
 		if(target != null) {
 			this.newTarget = target;
@@ -57,16 +58,19 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 		Player nearest = null;
 		double dist = 100000.0;
 		
+		
+		//some people say using #getNearbyEntities() is more efficient, but I really really doubt it considering that getNearbyEntities goes over every entity and checks if the necessary chunks are loaded for the ones in range
 		for(Player p : Bukkit.getOnlinePlayers()) {
-			if(p.getLocation().distance(witherLoc) < dist && !(p.getVehicle() instanceof Wither)) {
+			double pDist = p.getLocation().distance(witherLoc);
+			if(pDist < dist && !(p.getVehicle() instanceof Wither)) {
 				nearest = p;
-				dist = p.getLocation().distance(witherLoc);
+				dist = pDist;
 			}
 		}
-		
-		if(dist < 30) 
+
+		if(dist < ATTACK_RANGE)
 			return nearest;
-		 else
+		else
 			return null;
 	}
 

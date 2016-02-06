@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import mc.yqt.fixedpowerups.powerups.Invoker;
 import mc.yqt.fixedpowerups.powerups.WitherWarrior;
@@ -108,7 +109,7 @@ public abstract class Powerup {
 	 * Event handler for the powerup GUI
 	 * @param Event
 	 */
-	public static void onGUIEvent(InventoryClickEvent e) {
+	public static void onGUIEvent(final InventoryClickEvent e) {
 		e.setCancelled(true);
 		
 		if(e.getCurrentItem() == null)
@@ -155,7 +156,12 @@ public abstract class Powerup {
 				
 				
 				//successful, close inventory
-				e.getWhoClicked().closeInventory();
+				new BukkitRunnable() {
+					@Override
+					public void run() {
+						e.getWhoClicked().closeInventory();
+					}
+				}.runTaskLater(FixedPowerups.getThis(), 1l);
 			}
 		}
 	}
