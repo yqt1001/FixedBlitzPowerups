@@ -17,6 +17,10 @@ public class FixedPowerups extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
+		//simple NMS version checker to avoid obvious NMS errors
+		if(!(Bukkit.getServer().getClass().getPackage().getName()).equals("org.bukkit.craftbukkit.v1_8_R3"))
+			NMSenabled = false;
+		
 		
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), this);
 		Bukkit.getPluginManager().registerEvents(new EntityEvents(), this);
