@@ -59,7 +59,7 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 		double dist = 100000.0;
 		
 		
-		//some people say using #getNearbyEntities() is more efficient, but I really really doubt it considering that getNearbyEntities goes over every entity and checks if the necessary chunks are loaded for the ones in range
+		//some people say using getNearbyEntities() is more efficient, but I really really doubt it considering that getNearbyEntities goes over every entity and checks if the necessary chunks are loaded for the ones in range
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			double pDist = p.getLocation().distance(witherLoc);
 			if(pDist < dist && !(p.getVehicle() instanceof Wither)) {

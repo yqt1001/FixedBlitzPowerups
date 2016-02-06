@@ -4,7 +4,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import mc.yqt.fixedpowerups.Powerup;
+import mc.yqt.fixedpowerups.powerups.Powerup;
 
 public class InventoryEvents implements Listener {
 

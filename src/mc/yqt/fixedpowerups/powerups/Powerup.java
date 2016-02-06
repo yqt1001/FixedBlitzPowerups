@@ -1,4 +1,4 @@
-package mc.yqt.fixedpowerups;
+package mc.yqt.fixedpowerups.powerups;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +12,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
-import mc.yqt.fixedpowerups.powerups.Invoker;
-import mc.yqt.fixedpowerups.powerups.WitherWarrior;
+import mc.yqt.fixedpowerups.FixedPowerups;
+import mc.yqt.fixedpowerups.powerups.invoker.Invoker;
+import mc.yqt.fixedpowerups.powerups.witherwarrior.WitherWarrior;
 
 public abstract class Powerup {
 	
@@ -23,12 +25,20 @@ public abstract class Powerup {
 	private ItemStack identifier;
 	private boolean reqNMS;
 	
-	public abstract void powerup(Player p);
+	private int lengthInSeconds;
+	private int runtimeDelayInTicks;
+	private BukkitTask runtime;
 	
-	public Powerup(String s1, ItemStack id, boolean nms) {
+	//required powerup methods
+	public abstract void powerupActivate(Player p);
+	public abstract void powerupShutdown(Player p);
+	
+	public Powerup(String s1, ItemStack id, int length, int runtimeDelay, boolean nms) {
 		this.name = s1;
 		this.identifier = id;
 		this.reqNMS = nms;
+		this.lengthInSeconds = length;
+		this.runtimeDelayInTicks = runtimeDelay;
 		this.lore = null;
 	}
 	
@@ -50,6 +60,55 @@ public abstract class Powerup {
 	
 	public boolean requiresNMS() {
 		return this.reqNMS;
+	}
+	
+	//if this method will not be overrided, be sure to pass 0 runtime delay through the constructor
+	public void powerupRuntime(Player p) { }
+	
+	public void powerup(final Player p) {
+		/* Main powerup method, split into three parts
+		 * ACTIVATE: Runs once activated
+		 * RUNTIME: Bukkit runnable that runs while the powerup is active, determined by the delay given in constructor
+		 * SHUTDOWN: Bukkit runnable that deactivates the powerup
+		 */
+		
+		//activate
+		Bukkit.broadcastMessage("§e" + p.getName() + " has activated the §a§l" + this.name + " §epowerup!");
+		powerupActive = true;
+		//give player regen 2 for 30 seconds as standard
+		p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
+		
+		this.powerupActivate(p);
+		
+		
+		//runtime runnable
+		if(this.runtimeDelayInTicks > 0)
+		{
+			runtime = new BukkitRunnable() {
+				@Override
+				public void run() {
+					powerupRuntime(p);
+				}
+			}.runTaskTimer(FixedPowerups.getThis(), this.runtimeDelayInTicks, this.runtimeDelayInTicks);
+		}
+		
+		//shutdown runnable
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				powerupShutdown(p);
+				
+				if(runtime != null) {
+					runtime.cancel();
+					runtime = null;
+				}
+				
+				powerupActive = false;
+				
+				if(lengthInSeconds > 0)
+					Bukkit.broadcastMessage("§eThe §a§l" + name + " §epowerup has been disabled.");
+			}
+		}.runTaskLater(FixedPowerups.getThis(), this.lengthInSeconds * 20);
 	}
 	
 	/* Static methods to manage powerups */
@@ -141,19 +200,8 @@ public abstract class Powerup {
 					return;
 				}
 				else 
-				{
-					
-					//broadcast message
-					Bukkit.broadcastMessage("§e" + e.getWhoClicked().getName() + " has activated the §a§l" + s + " §epowerup!");
-					
 					//activate powerup
 					p.powerup((Player) e.getWhoClicked());
-					powerupActive = true;
-					
-					//give player regen 2 for 30 seconds as standard
-					e.getWhoClicked().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
-				}
-				
 				
 				//successful, close inventory
 				new BukkitRunnable() {

@@ -1,4 +1,4 @@
-package mc.yqt.fixedpowerups.powerups;
+package mc.yqt.fixedpowerups.powerups.witherwarrior;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -8,11 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
-import mc.yqt.fixedpowerups.Powerup;
-import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither;
+import mc.yqt.fixedpowerups.powerups.Powerup;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither.WitherTypes;
 import mc.yqt.fixedpowerups.utils.MiscUtils;
 import mc.yqt.fixedpowerups.utils.NMSEntities;
@@ -23,7 +21,7 @@ public class WitherWarrior extends Powerup {
 	private RideableWither wither;
 	
 	public WitherWarrior() {
-		super("Wither Warrior", new ItemStack(Material.ENDER_STONE), true);
+		super("Wither Warrior", new ItemStack(Material.ENDER_STONE), 30, 0, true);
 		
 		LinkedList<String> lore = new LinkedList<String>();
 		lore.add("§eLets you spawn and ride your own wither for 30");
@@ -37,7 +35,7 @@ public class WitherWarrior extends Powerup {
 	}
 
 	@Override
-	public void powerup(final Player p) {
+	public void powerupActivate(Player p) {
 		try {
 			//get random wither type
 			WitherTypes type = WitherTypes.values()[new Random().nextInt(WitherTypes.values().length)];
@@ -59,17 +57,15 @@ public class WitherWarrior extends Powerup {
 			e.printStackTrace();
 			FixedPowerups.setNMSState(false);
 		}
-		
+	}
+	
+	@Override
+	public void powerupShutdown(Player p) {
 		//shut off the powerup
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				Bukkit.broadcastMessage("§eThe Wither Warrior powerup has been disabled.");
-				wither.die();
-				p.teleport(MiscUtils.getSurface(p.getLocation()));
-				Powerup.powerupActive = false;
-			}
-		}.runTaskLater(FixedPowerups.getThis(), 600L);
+		//Bukkit.broadcastMessage("§eThe §a§lWither Warrior §epowerup has been disabled.");
+		wither.die();
+		p.teleport(MiscUtils.getSurface(p.getLocation()));
+		//Powerup.powerupActive = false;
 	}
 
 }

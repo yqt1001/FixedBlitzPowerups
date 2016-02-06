@@ -13,7 +13,7 @@ import mc.yqt.fixedpowerups.utils.Particles;
 public class AngryType extends WitherType {
 
 	public AngryType() {
-		super("§cANGRY", 50);
+		super("§cANGRY", 100);
 	}
 
 	@Override

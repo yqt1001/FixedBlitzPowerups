@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import mc.yqt.fixedpowerups.listeners.*;
+import mc.yqt.fixedpowerups.powerups.Powerup;
 
 public class FixedPowerups extends JavaPlugin {
 
