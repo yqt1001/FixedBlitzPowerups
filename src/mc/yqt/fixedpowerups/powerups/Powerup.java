@@ -62,7 +62,7 @@ public abstract class Powerup {
 		return this.reqNMS;
 	}
 	
-	//if this method will not be overrided, be sure to pass 0 runtime delay through the constructor
+	//if this method will not be overwritten, be sure to pass 0 runtime delay through the constructor
 	public void powerupRuntime(Player p) { }
 	
 	public void powerup(final Player p) {
@@ -111,25 +111,20 @@ public abstract class Powerup {
 		}.runTaskLater(FixedPowerups.getThis(), this.lengthInSeconds * 20);
 	}
 	
+	
+	
+	
+	
+	
+	
+	
 	/* Static methods to manage powerups */
 	private static HashMap<String, Powerup> powerups = new HashMap<String, Powerup>();
 	public static boolean powerupActive = false;
 	
 	static {
-		powerups.put("Invoker", new Invoker());
-		powerups.put("Wither Warrior", new WitherWarrior());
-	}
-	
-	/**
-	 * Gets a powerup given the name
-	 * @param Powerup name
-	 * @return
-	 */
-	public static Powerup getPowerup(String powerup) {
-		if(powerups.containsKey(powerup))
-			return powerups.get(powerup);
-		
-		return null;
+		powerups.put("Invoker", new Invoker("Invoker"));
+		powerups.put("Wither Warrior", new WitherWarrior("Wither Warrior"));
 	}
 	
 	/**
@@ -192,7 +187,7 @@ public abstract class Powerup {
 			
 			//search for the specified powerup
 			Powerup p;
-			if((p = getPowerup(s)) != null) {
+			if((p = powerups.get(s)) != null) {
 				//if it requires NMS, make sure it is enabled
 				if(p.requiresNMS() && !FixedPowerups.getNMSState()) 
 				{

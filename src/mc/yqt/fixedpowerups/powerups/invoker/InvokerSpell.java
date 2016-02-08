@@ -31,16 +31,4 @@ public abstract class InvokerSpell {
 	static {
 		
 	}
-	
-	/**
-	 * Returns a specified spell from name
-	 * @param Spell name
-	 * @return
-	 */
-	public static InvokerSpell getSpell(String spell) {
-		if(spells.containsKey(spell))
-			return spells.get(spell);
-		
-		return null;
-	}
 }

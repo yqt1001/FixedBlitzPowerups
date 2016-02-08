@@ -10,8 +10,8 @@ import mc.yqt.fixedpowerups.powerups.Powerup;
 
 public class Invoker extends Powerup {
 
-	public Invoker() {
-		super("Invoker", new ItemStack(Material.PAPER), 0, 0, false);
+	public Invoker(String name) {
+		super(name, new ItemStack(Material.PAPER), 0, 0, false);
 	}
 
 	@Override

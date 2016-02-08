@@ -6,6 +6,7 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,8 +21,8 @@ public class WitherWarrior extends Powerup {
 
 	private RideableWither wither;
 	
-	public WitherWarrior() {
-		super("Wither Warrior", new ItemStack(Material.ENDER_STONE), 30, 0, true);
+	public WitherWarrior(String name) {
+		super(name, new ItemStack(Material.ENDER_STONE), 30, 0, true);
 		
 		LinkedList<String> lore = new LinkedList<String>();
 		lore.add("§eLets you spawn and ride your own wither for 30");
@@ -62,10 +63,14 @@ public class WitherWarrior extends Powerup {
 	@Override
 	public void powerupShutdown(Player p) {
 		//shut off the powerup
-		//Bukkit.broadcastMessage("§eThe §a§lWither Warrior §epowerup has been disabled.");
 		wither.die();
 		p.teleport(MiscUtils.getSurface(p.getLocation()));
-		//Powerup.powerupActive = false;
+		
+		//remove wither skulls
+		for(Entity e : p.getWorld().getEntities()) {
+			if(e instanceof HarmlessWitherSkull)
+				e.remove();
+		}
 	}
 
 }
