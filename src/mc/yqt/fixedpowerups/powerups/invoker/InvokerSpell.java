@@ -1,7 +1,8 @@
 package mc.yqt.fixedpowerups.powerups.invoker;
 
-import java.util.HashMap;
 import java.util.List;
+
+import mc.yqt.fixedpowerups.FixedPowerups;
 
 public abstract class InvokerSpell {
 
@@ -10,7 +11,7 @@ public abstract class InvokerSpell {
 	
 	public abstract void spell();
 	
-	public InvokerSpell(String s1) {
+	public InvokerSpell(FixedPowerups main, String s1) {
 		this.name = s1;
 	}
 	
@@ -24,11 +25,5 @@ public abstract class InvokerSpell {
 	
 	public void setLore(List<String> lore) {
 		this.lore = lore;
-	}
-	
-	/* Static methods to manage spells */
-	private static HashMap<String, InvokerSpell> spells = new HashMap<String, InvokerSpell>();
-	static {
-		
 	}
 }

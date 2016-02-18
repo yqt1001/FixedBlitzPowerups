@@ -11,26 +11,31 @@ import mc.yqt.fixedpowerups.FixedPowerups;
 public class ProtocolListeners {
 
 	//EID of wither used in witherwarrior
-	public static int interceptWitherDetachPacket = 0;
+	private int interceptWitherDetachPacket = 0;
 	
-	private static ProtocolManager PM;
+	private ProtocolManager PM;
+	private FixedPowerups main;
 	
-	/**
-	 * Create protocollib listeners
-	 */
-	public static void onEnable() {
-		PM = ProtocolLibrary.getProtocolManager();
+	public ProtocolListeners(FixedPowerups main) {
+		this.main = main;
+		this.PM = ProtocolLibrary.getProtocolManager();
 		
 		//Listener for interceptWitherDetachPacket
-		PM.addPacketListener(new PacketAdapter(FixedPowerups.getThis(), PacketType.Play.Server.ATTACH_ENTITY) {
+		PM.addPacketListener(new PacketAdapter(this.main, PacketType.Play.Server.ATTACH_ENTITY) {
 			@Override
 			public void onPacketSending(PacketEvent e) 
 			{
-				if(interceptWitherDetachPacket == e.getPacket().getIntegers().read(0) && e.getPacket().getIntegers().read(1) == -1) {
+				if(interceptWitherDetachPacket == e.getPacket().getIntegers().read(0) && e.getPacket().getIntegers().read(1) == -1) 
 					e.setCancelled(true);
-					interceptWitherDetachPacket = 0;
-				}
 			}
 		});
+	}
+	
+	/**
+	 * Sets the wither EID to intercept the dismount packets sent by the server
+	 * @param eid
+	 */
+	public void setWitherEID(int eid) {
+		this.interceptWitherDetachPacket = eid;
 	}
 }

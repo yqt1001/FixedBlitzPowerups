@@ -6,12 +6,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import mc.yqt.fixedpowerups.FixedPowerups;
 import mc.yqt.fixedpowerups.powerups.Powerup;
 
 public class Invoker extends Powerup {
 
-	public Invoker(String name) {
-		super(name, new ItemStack(Material.PAPER), 0, 0, false);
+	public Invoker(FixedPowerups main, String name) {
+		super(main, name, new ItemStack(Material.PAPER), 0, 0, false);
 	}
 
 	@Override

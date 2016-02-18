@@ -12,7 +12,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
-import mc.yqt.fixedpowerups.listeners.ProtocolListeners;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.AngryType;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.LethalType;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.PeacefulType;
@@ -43,10 +42,11 @@ public class RideableWither extends EntityWither {
 		}
 	}
 	
+	private FixedPowerups main;
 	private Player pax;
 	private WitherTypes type;
 
-	public RideableWither(World world, WitherTypes type) {
+	public RideableWither(FixedPowerups main, World world, WitherTypes type) {
 
 		super(((CraftWorld) world).getHandle());
 
@@ -60,6 +60,7 @@ public class RideableWither extends EntityWither {
 		this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
 		
 		this.type = type;
+		this.main = main;
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class RideableWither extends EntityWither {
 			public void run() {
 				datawatcher.watch(2, "§e" + pax.getName() + " the §cWITHER WARRIOR");
 			}
-		}.runTaskLater(FixedPowerups.getThis(), 1L);
+		}.runTaskLater(this.main, 1L);
 	}
 
 	@Override
@@ -116,7 +117,6 @@ public class RideableWither extends EntityWither {
 		this.yaw = passenger.yaw;
 		this.pitch = passenger.pitch;
 
-		//Bukkit.broadcastMessage("motX: " + motX + " motZ: " + motZ);
 		//I still want to try and speed up the wither but is it that important? I'm not sure
 
 		super.g(movStrafe, movForward);
@@ -152,12 +152,9 @@ public class RideableWither extends EntityWither {
 		double d7 = (entityliving.locY + entityliving.getHeadHeight() * 0.5D) - d4;
 		double d8 = entityliving.locZ - d5;
 
-		HarmlessWitherSkull entitywitherskull = (HarmlessWitherSkull) NMSEntities.spawnEntity(
-				new HarmlessWitherSkull(this.pax.getWorld(), this, d6, d7, d8, ((CraftPlayer) this.pax).getHandle()), new Location(this.pax.getWorld(), d3, d4, d5));
-
-		//1/10 chance of a charged skull
-		if(Math.random() < 0.1)
-			entitywitherskull.setCharged(true);
+		NMSEntities.spawnEntity(
+				new HarmlessWitherSkull(this.pax.getWorld(), this, d6, d7, d8, 
+				((CraftPlayer) this.pax).getHandle()), new Location(this.pax.getWorld(), d3, d4, d5));
 	}
 
 	/**
@@ -185,28 +182,21 @@ public class RideableWither extends EntityWither {
 		return this.type;
 	}
 
-	/* Static methods */
-
 	/**
 	 * Handles entity dismount event for this mob
 	 * @param Event
 	 */
-	public static void dismountEvent(final EntityDismountEvent e) {
+	public void dismountEvent(final EntityDismountEvent e) {
 		CraftWither cw = (CraftWither) e.getDismounted();
 
 		if(cw.getHandle() instanceof RideableWither) {
 			final RideableWither rw = (RideableWither) cw.getHandle();
-
-			//intercept the packet that gets sent when the player dismounts
-			ProtocolListeners.interceptWitherDetachPacket = cw.getEntityId();
-
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					rw.setPassenger((Player) e.getEntity());
-					ProtocolListeners.interceptWitherDetachPacket = 0;
 				}
-			}.runTaskLater(FixedPowerups.getThis(), 1L);
+			}.runTaskLater(this.main, 1L);
 		}
 	}
 }

@@ -21,6 +21,10 @@ public class HarmlessWitherSkull extends EntityWitherSkull {
 		
 		this.pax = passenger;
 		this.wither = (RideableWither) entityliving;
+		
+		//1/10 chance of a charged skull
+		if(Math.random() < 0.1)
+			this.setCharged(true);
 	}
 	
 	@Override
