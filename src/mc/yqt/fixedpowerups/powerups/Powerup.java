@@ -80,14 +80,13 @@ public abstract class Powerup {
 		
 		//runtime runnable
 		if(this.runtimeDelayInTicks > 0)
-		{
 			runtime = new BukkitRunnable() {
 				@Override
 				public void run() {
 					powerupRuntime(p);
 				}
 			}.runTaskTimer(main, this.runtimeDelayInTicks, this.runtimeDelayInTicks);
-		}
+		
 		
 		//shutdown runnable
 		new BukkitRunnable() {

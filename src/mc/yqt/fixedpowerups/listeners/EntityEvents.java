@@ -20,10 +20,8 @@ public class EntityEvents implements Listener {
 	public void onDismount(EntityDismountEvent e) {
 
 		//dismounting the wither warrior wither
-		if(e.getDismounted() instanceof Wither && this.main.getActive() != null && this.main.getActive().getName().equals("Wither Warrior"))
-		{
-			WitherWarrior ww = (WitherWarrior) this.main.getActive();
-			ww.getWither().dismountEvent(e);
-		}
+		WitherWarrior active;
+		if(e.getDismounted() instanceof Wither && (active = this.main.getActive(WitherWarrior.class)) != null)
+			active.getWither().dismountEvent(e);
 	}
 }

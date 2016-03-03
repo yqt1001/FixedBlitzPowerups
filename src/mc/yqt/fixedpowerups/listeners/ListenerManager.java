@@ -7,7 +7,7 @@ import mc.yqt.fixedpowerups.FixedPowerups;
 
 public class ListenerManager {
 
-	/* Singleton object to manage listeners */
+	/* Object to manage listeners */
 	
 	private Listener inventory;
 	private Listener entity;

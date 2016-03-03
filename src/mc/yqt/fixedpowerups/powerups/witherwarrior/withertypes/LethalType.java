@@ -12,7 +12,7 @@ import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither;
 public class LethalType extends WitherType {
 
 	public LethalType() {
-		super("§8DEADLY", 80);
+		super("§8DEADLY", 60);
 	}
 
 	@Override

@@ -47,8 +47,10 @@ public class RideableWither extends EntityWither {
 	private WitherTypes type;
 
 	public RideableWither(FixedPowerups main, World world, WitherTypes type) {
-
 		super(((CraftWorld) world).getHandle());
+		
+		this.type = type;
+		this.main = main;
 
 		//clear existing path finding and target selectors
 		((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.goalSelector)).clear();
@@ -59,14 +61,6 @@ public class RideableWither extends EntityWither {
 		//add a target, nearest player
 		this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
 		
-		this.type = type;
-		this.main = main;
-	}
-
-	@Override
-	public void h() {
-		super.h();
-
 		//set name, delayed slightly otherwise datawatcher is not properly instantiated
 		new BukkitRunnable() {
 			@Override
@@ -74,6 +68,19 @@ public class RideableWither extends EntityWither {
 				datawatcher.watch(2, "§e" + pax.getName() + " the §cWITHER WARRIOR");
 			}
 		}.runTaskLater(this.main, 1L);
+	}
+
+	@Override
+	public void h() {
+		super.h();
+
+		/*//set name, delayed slightly otherwise datawatcher is not properly instantiated
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				datawatcher.watch(2, "§e" + pax.getName() + " the §cWITHER WARRIOR");
+			}
+		}.runTaskLater(this.main, 1L);*/
 	}
 
 	@Override
