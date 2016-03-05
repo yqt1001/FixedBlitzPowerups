@@ -1,6 +1,7 @@
 package mc.yqt.fixedpowerups.powerups.witherwarrior;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -62,7 +63,7 @@ public class PathfinderGoalNearestNonMountedAttackableHuman extends PathfinderGo
 		//some people say using getNearbyEntities() is more efficient, but I really really doubt it considering that getNearbyEntities goes over every entity and checks if the necessary chunks are loaded for the ones in range
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			double pDist = p.getLocation().distance(witherLoc);
-			if(pDist < dist && !(p.getVehicle() instanceof Wither)) {
+			if(pDist < dist && !(p.getVehicle() instanceof Wither) && p.getGameMode() != GameMode.SPECTATOR) {
 				nearest = p;
 				dist = pDist;
 			}

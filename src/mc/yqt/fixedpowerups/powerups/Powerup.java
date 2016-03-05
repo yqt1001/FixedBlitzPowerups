@@ -18,6 +18,7 @@ public abstract class Powerup {
 	private List<String> lore;
 	private ItemStack identifier;
 	private boolean reqNMS;
+	private boolean canceled;
 	
 	private int lengthInSeconds;
 	private int runtimeDelayInTicks;
@@ -34,6 +35,7 @@ public abstract class Powerup {
 		this.name = s1;
 		this.identifier = id;
 		this.reqNMS = nms;
+		this.canceled = false;
 		this.lengthInSeconds = length;
 		this.runtimeDelayInTicks = runtimeDelay;
 		this.lore = null;
@@ -59,6 +61,17 @@ public abstract class Powerup {
 		return this.reqNMS;
 	}
 	
+	public boolean isCanceled() {
+		return this.canceled;
+	}
+	
+	public void cancel() {
+		this.canceled = true;
+		if(this.runtime != null) this.runtime.cancel();
+		this.runtime = null;
+		this.main.setActive(null);
+	}
+	
 	//if this method will not be overwritten, be sure to pass 0 runtime delay through the constructor
 	public void powerupRuntime(Player p) { }
 	
@@ -73,7 +86,7 @@ public abstract class Powerup {
 		Bukkit.broadcastMessage("§e" + p.getName() + " has activated the §a§l" + this.name + " §epowerup!");
 		this.main.setActive(this);
 		//give player regen 2 for 30 seconds as standard
-		p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1));
+		p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1), true);
 		
 		this.powerupActivate(p);
 		
@@ -92,6 +105,9 @@ public abstract class Powerup {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
+				if(canceled)
+					return;
+				
 				powerupShutdown(p);
 				
 				if(runtime != null) {

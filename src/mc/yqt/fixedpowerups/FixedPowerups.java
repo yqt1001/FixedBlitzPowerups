@@ -126,14 +126,9 @@ public class FixedPowerups extends JavaPlugin {
 	public void onGUIEvent(final InventoryClickEvent e) {
 		e.setCancelled(true);
 		
-		if(e.getCurrentItem() == null)
-			return;
-		
-		if(e.getCurrentItem().getItemMeta() == null)
-			return;
-		
-		if(e.getCurrentItem().getItemMeta().getDisplayName() == null)
-			return;
+		if(e.getCurrentItem() == null) return;
+		if(e.getCurrentItem().getItemMeta() == null) return;
+		if(e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
 		
 		//if there is a powerup currently active, stop now
 		if(powerupActive != null)
@@ -156,9 +151,9 @@ public class FixedPowerups extends JavaPlugin {
 			e.getWhoClicked().sendMessage("§cNMS is disabled!");
 			return;
 		}
-		else 
-			//activate powerup
-			p.powerup((Player) e.getWhoClicked());
+
+		//activate powerup
+		p.powerup((Player) e.getWhoClicked());
 				
 		//successful, close inventory
 		new BukkitRunnable() {

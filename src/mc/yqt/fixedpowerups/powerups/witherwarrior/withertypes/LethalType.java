@@ -21,7 +21,7 @@ public class LethalType extends WitherType {
 		if(skull.isCharged())
 		{
 			e.damage(12.0, (Entity) wither.getBukkitEntity());
-			e.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 80, 0), true);
+			e.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 80, 1), true);
 		}
 		else
 		{

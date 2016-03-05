@@ -71,19 +71,6 @@ public class RideableWither extends EntityWither {
 	}
 
 	@Override
-	public void h() {
-		super.h();
-
-		/*//set name, delayed slightly otherwise datawatcher is not properly instantiated
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				datawatcher.watch(2, "§e" + pax.getName() + " the §cWITHER WARRIOR");
-			}
-		}.runTaskLater(this.main, 1L);*/
-	}
-
-	@Override
 	public void E() {
 		//stop wither from damaging blocks
 	}
