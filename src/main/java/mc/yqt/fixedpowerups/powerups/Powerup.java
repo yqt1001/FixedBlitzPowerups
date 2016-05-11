@@ -2,12 +2,13 @@ package mc.yqt.fixedpowerups.powerups;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
 import mc.yqt.fixedpowerups.utils.MiscUtils;
+import mc.yqt.fixedpowerups.utils.RunnableBuilder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
@@ -39,7 +40,6 @@ public abstract class Powerup {
 
     //required powerup methods
     public abstract void powerupActivate(Player p);
-
     public abstract void powerupShutdown(Player p);
 
     public String getName() {
@@ -95,33 +95,25 @@ public abstract class Powerup {
 
         //runtime runnable
         if (this.runtimeDelayInTicks > 0)
-            runtime = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    powerupRuntime(p);
-                }
-            }.runTaskTimer(main, this.runtimeDelayInTicks, this.runtimeDelayInTicks);
+        	runtime = RunnableBuilder.make(main).delay(runtimeDelayInTicks).run(() -> powerupRuntime(p));
 
 
         //shutdown runnable
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (canceled)
-                    return;
+        RunnableBuilder.make(main).delay(lengthInSeconds * 20).run(() -> {
+        	if(canceled)
+                return;
 
-                powerupShutdown(p);
+            powerupShutdown(p);
 
-                if (runtime != null) {
-                    runtime.cancel();
-                    runtime = null;
-                }
-
-                main.setActive(null);
-
-                if (lengthInSeconds > 0)
-                    Bukkit.broadcastMessage(MiscUtils.modulate("The " + MiscUtils.encapsulate(name) + " powerup has been disabled."));
+            if(runtime != null) {
+                runtime.cancel();
+                runtime = null;
             }
-        }.runTaskLater(main, this.lengthInSeconds * 20);
+
+            main.setActive(null);
+
+            if(lengthInSeconds > 0)
+                Bukkit.broadcastMessage(MiscUtils.modulate("The " + MiscUtils.encapsulate(name) + " powerup has been disabled."));
+        });
     }
 }

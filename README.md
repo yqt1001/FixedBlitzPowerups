@@ -15,5 +15,6 @@ Project to fix the broken and boring Blitz Star powerups. The plugin itself runs
 - We'll see
 
 ## Compilation
-Requires GitBash and Maven to be correctly installed.
+Requires Git and Maven to be correctly installed.
 Clone this repository and run `mvn clean install`.
+This plugin uses streaming and other Java 8 features and as such, depends on Java 8.

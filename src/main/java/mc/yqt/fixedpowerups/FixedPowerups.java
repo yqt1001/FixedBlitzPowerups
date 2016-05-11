@@ -4,6 +4,9 @@ import mc.yqt.fixedpowerups.listeners.ListenerManager;
 import mc.yqt.fixedpowerups.powerups.Powerup;
 import mc.yqt.fixedpowerups.powerups.invoker.Invoker;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.WitherWarrior;
+import mc.yqt.fixedpowerups.utils.RunnableBuilder;
+import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 
@@ -104,7 +106,7 @@ public class FixedPowerups extends JavaPlugin {
             //format item
             ItemStack is = pu.getIdentifier();
             ItemMeta im = is.getItemMeta();
-            im.setDisplayName("�a" + pu.getName());
+            im.setDisplayName(ChatColor.GREEN + pu.getName());
             im.setLore(pu.getLore());
             is.setItemMeta(im);
 
@@ -135,7 +137,7 @@ public class FixedPowerups extends JavaPlugin {
 
         //if there is a powerup currently active, stop now
         if (powerupActive != null) {
-            e.getWhoClicked().sendMessage("�cAnother powerup is currently active!");
+            e.getWhoClicked().sendMessage(ChatColor.RED + "Another powerup is currently active!");
             return;
         }
 
@@ -149,7 +151,7 @@ public class FixedPowerups extends JavaPlugin {
 
         //if it requires NMS, make sure it is enabled
         if (p.requiresNMS() && !getNMSState()) {
-            e.getWhoClicked().sendMessage("�cNMS is disabled!");
+            e.getWhoClicked().sendMessage(ChatColor.RED + "NMS is disabled!");
             return;
         }
 
@@ -157,12 +159,7 @@ public class FixedPowerups extends JavaPlugin {
         p.powerup((Player) e.getWhoClicked());
 
         //successful, close inventory
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                e.getWhoClicked().closeInventory();
-            }
-        }.runTaskLater(this, 1l);
+        RunnableBuilder.make(this).run(() -> e.getWhoClicked().closeInventory());
     }
 
     /**

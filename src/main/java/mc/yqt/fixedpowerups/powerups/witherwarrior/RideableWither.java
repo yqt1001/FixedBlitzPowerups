@@ -7,6 +7,7 @@ import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.PeacefulType;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.WitherType;
 import mc.yqt.fixedpowerups.utils.NMSEntities;
 import mc.yqt.fixedpowerups.utils.NMSReflect;
+import mc.yqt.fixedpowerups.utils.RunnableBuilder;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityLiving;
@@ -21,7 +22,6 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftWither;
 import org.bukkit.entity.Player;
 import org.bukkit.event.vehicle.VehicleExitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
@@ -46,12 +46,7 @@ public class RideableWither extends EntityWither {
         this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
 
         //set name, delayed slightly otherwise datawatcher is not properly instantiated
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                datawatcher.watch(2, ChatColor.YELLOW + pax.getName() + " the " + ChatColor.RED + "WITHER WARRIOR");
-            }
-        }.runTaskLater(this.main, 1L);
+        RunnableBuilder.make(this.main).run(() -> datawatcher.watch(2, ChatColor.YELLOW + pax.getName() + " the " + ChatColor.RED + "WITHER WARRIOR"));
     }
 
     @Override
