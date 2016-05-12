@@ -16,9 +16,9 @@ public enum NMSEntities {
 
     @SuppressWarnings("unchecked")
     private NMSEntities(String name, int id, Class<? extends Entity> e) {
-        ((Map<String, Class<? extends Entity>>) NMSReflect.getPrivateField("c", EntityTypes.class, null)).put(name, e);
-        ((Map<Class<? extends Entity>, String>) NMSReflect.getPrivateField("d", EntityTypes.class, null)).put(e, name);
-        ((Map<Class<? extends Entity>, Integer>) NMSReflect.getPrivateField("f", EntityTypes.class, null)).put(e, Integer.valueOf(id));
+        ((Map<String, Class<? extends Entity>>) Reflect.getPrivateField("c", EntityTypes.class, null)).put(name, e);
+        ((Map<Class<? extends Entity>, String>) Reflect.getPrivateField("d", EntityTypes.class, null)).put(e, name);
+        ((Map<Class<? extends Entity>, Integer>) Reflect.getPrivateField("f", EntityTypes.class, null)).put(e, Integer.valueOf(id));
     }
 
     public static Entity spawnEntity(Entity e, Location l) {

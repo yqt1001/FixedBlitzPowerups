@@ -21,21 +21,18 @@ import java.util.HashMap;
 
 public class FixedPowerups extends JavaPlugin {
 
-    /*
+    /**
      * God variable that is used to ensure that if any NMS errors occur at any point,
      * shut down all NMS features
      */
     private static boolean NMSenabled = true;
 
     private ListenerManager listeners;
-    /* Powerup manager */
     private HashMap<String, Powerup> powerups = new HashMap<String, Powerup>();
     private Powerup powerupActive = null;
 
     /**
-     * Gets NMS state
-     *
-     * @return boolean
+     * @return Current NMS state
      */
     public static boolean getNMSState() {
         return NMSenabled;
@@ -44,8 +41,7 @@ public class FixedPowerups extends JavaPlugin {
     /**
      * Sets NMS state
      *
-     * @param New
-     *         state
+     * @param newState
      */
     public static void setNMSState(boolean newState) {
         NMSenabled = newState;
@@ -83,12 +79,17 @@ public class FixedPowerups extends JavaPlugin {
     }
 
     /**
-     * Gets the listeners
-     *
-     * @return
+     * @return The listeners
      */
     public ListenerManager getListeners() {
         return this.listeners;
+    }
+    
+    /**
+     * @return Map of powerups
+     */
+    public HashMap<String, Powerup> getPowerups() {
+    	return powerups;
     }
 
     /**
@@ -131,12 +132,15 @@ public class FixedPowerups extends JavaPlugin {
     public void onGUIEvent(final InventoryClickEvent e) {
         e.setCancelled(true);
 
-        if (e.getCurrentItem() == null) return;
-        if (e.getCurrentItem().getItemMeta() == null) return;
-        if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
+        if(e.getCurrentItem() == null) 
+        	return;
+        if(e.getCurrentItem().getItemMeta() == null) 
+        	return;
+        if(e.getCurrentItem().getItemMeta().getDisplayName() == null) 
+        	return;
 
         //if there is a powerup currently active, stop now
-        if (powerupActive != null) {
+        if(powerupActive != null) {
             e.getWhoClicked().sendMessage(ChatColor.RED + "Another powerup is currently active!");
             return;
         }
@@ -146,11 +150,11 @@ public class FixedPowerups extends JavaPlugin {
 
         //search for the specified powerup
         Powerup p;
-        if ((p = powerups.get(s)) == null)
+        if((p = powerups.get(s)) == null)
             return;
 
         //if it requires NMS, make sure it is enabled
-        if (p.requiresNMS() && !getNMSState()) {
+        if(p.requiresNMS() && !getNMSState()) {
             e.getWhoClicked().sendMessage(ChatColor.RED + "NMS is disabled!");
             return;
         }
@@ -181,15 +185,36 @@ public class FixedPowerups extends JavaPlugin {
     }
 
     /**
-     * #getActive using generics to avoid spamming listener code with if(active instanceof PowerupType) and casts
+     * {@link #getActive()} using generics to avoid spamming listener code with if(active instanceof PowerupType) and casts
      *
      * @param clazz
      * @return
      */
     public <P extends Powerup> P getActive(Class<P> clazz) {
-        if (clazz.isInstance(this.powerupActive))
+        if(clazz.isInstance(this.powerupActive))
             return clazz.cast(this.powerupActive);
 
         return null;
+    }
+    
+    /**
+     * @param name
+     * @return Specified powerup from name
+     */
+    public Powerup getPowerup(String name) {
+    	return powerups.get(name);
+    }
+    
+    /**
+     * {@link #getPowerup(String)} using generics.
+     * @param clazz
+     * @return The powerup from the given class
+     */
+    public <P extends Powerup> P getPowerup(Class<P> clazz) {
+    	for(Powerup p : powerups.values())
+    		if(clazz.isInstance(p))
+    			return clazz.cast(p);
+    	
+    	return null;
     }
 }

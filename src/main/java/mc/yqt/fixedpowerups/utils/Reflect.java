@@ -5,7 +5,7 @@ import mc.yqt.fixedpowerups.FixedPowerups;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class NMSReflect {
+public class Reflect {
 
 
     public static Object getPrivateField(String name, Class<?> clazz, Object o) {

@@ -6,7 +6,7 @@ import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.LethalType;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.PeacefulType;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes.WitherType;
 import mc.yqt.fixedpowerups.utils.NMSEntities;
-import mc.yqt.fixedpowerups.utils.NMSReflect;
+import mc.yqt.fixedpowerups.utils.Reflect;
 import mc.yqt.fixedpowerups.utils.RunnableBuilder;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityHuman;
@@ -21,7 +21,7 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftWither;
 import org.bukkit.entity.Player;
-import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.List;
 
@@ -30,6 +30,7 @@ public class RideableWither extends EntityWither {
     private FixedPowerups main;
     private Player pax;
     private WitherTypes type;
+    
     public RideableWither(FixedPowerups main, World world, WitherTypes type) {
         super(((CraftWorld) world).getHandle());
 
@@ -37,16 +38,16 @@ public class RideableWither extends EntityWither {
         this.main = main;
 
         //clear existing path finding and target selectors
-        ((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.goalSelector)).clear();
-        ((List<?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.goalSelector)).clear();
-        ((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).clear();
-        ((List<?>) NMSReflect.getPrivateField("c", PathfinderGoalSelector.class, this.targetSelector)).clear();
+        ((List<?>) Reflect.getPrivateField("b", PathfinderGoalSelector.class, this.goalSelector)).clear();
+        ((List<?>) Reflect.getPrivateField("c", PathfinderGoalSelector.class, this.goalSelector)).clear();
+        ((List<?>) Reflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).clear();
+        ((List<?>) Reflect.getPrivateField("c", PathfinderGoalSelector.class, this.targetSelector)).clear();
 
         //add a target, nearest player
         this.targetSelector.a(1, new PathfinderGoalNearestNonMountedAttackableHuman(this, false));
 
         //set name, delayed slightly otherwise datawatcher is not properly instantiated
-        RunnableBuilder.make(this.main).run(() -> datawatcher.watch(2, ChatColor.YELLOW + pax.getName() + " the " + ChatColor.RED + "WITHER WARRIOR"));
+        RunnableBuilder.make(main).run(() -> datawatcher.watch(2, ChatColor.YELLOW + pax.getName() + " the " + ChatColor.RED + "WITHER WARRIOR"));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class RideableWither extends EntityWither {
     public void g(float f, float f1) {
         //wither movement
 
-        if ((this.passenger == null) || (!(this.passenger instanceof EntityHuman)))
+        if((this.passenger == null) || (!(this.passenger instanceof EntityHuman)))
             return;
 
         EntityLiving passenger = (EntityLiving) this.passenger;
@@ -68,16 +69,16 @@ public class RideableWither extends EntityWither {
         //get passenger keyboard inputs
         float movForward = passenger.ba;
         float movStrafe = passenger.aZ;
-        boolean jump = (boolean) NMSReflect.getPrivateField("aY", EntityLiving.class, passenger);
+        boolean jump = (boolean) Reflect.getPrivateField("aY", EntityLiving.class, passenger);
 
         //move upwards
-        if (jump)
+        if(jump)
             this.motY = 0.3D;
         else {
-            if (movForward == 0)
+            if(movForward == 0)
                 //if S and W or nothing has been pressed, descend slowly
                 this.motY = -0.1D;
-            else if (movForward < 0) {
+            else if(movForward < 0) {
                 //if S has been pressed, descend
                 this.motY = -0.2D;
                 movForward = 0;
@@ -96,13 +97,13 @@ public class RideableWither extends EntityWither {
 
         //force update the target, that way it's not incredibly unfair for a single player
         try {
-            Object targeter = ((List<?>) NMSReflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).get(0);
+            Object targeter = ((List<?>) Reflect.getPrivateField("b", PathfinderGoalSelector.class, this.targetSelector)).get(0);
             Class<?> pfitemclass = PathfinderGoalSelector.class.getDeclaredClasses()[0];
-            PathfinderGoal pfg = (PathfinderGoal) NMSReflect.getPrivateField("a", pfitemclass, targeter);
+            PathfinderGoal pfg = (PathfinderGoal) Reflect.getPrivateField("a", pfitemclass, targeter);
 
             if (pfg.a())
                 pfg.c();
-        } catch (Exception e) {
+        } catch(Exception e) {
             FixedPowerups.setNMSState(false);
             e.printStackTrace();
         }
@@ -113,7 +114,7 @@ public class RideableWither extends EntityWither {
         //custom wither skull
 
         //spawn about twice per second
-        if (Math.random() > 0.12)
+        if(Math.random() > 0.12)
             return;
 
         this.world.a(null, 1014, new BlockPosition(this), 0);
@@ -131,9 +132,7 @@ public class RideableWither extends EntityWither {
     }
 
     /**
-     * Gets the passenger
-     *
-     * @return
+     * @return The passenger
      */
     public Player getPassenger() {
         return this.pax;
@@ -150,9 +149,7 @@ public class RideableWither extends EntityWither {
     }
 
     /**
-     * Gets the wither type
-     *
-     * @return
+     * @return The type of wither
      */
     public WitherTypes getType() {
         return this.type;
@@ -163,11 +160,13 @@ public class RideableWither extends EntityWither {
      *
      * @param Event
      */
-    public void dismountEvent(VehicleExitEvent e) {
-        CraftWither cw = (CraftWither) e.getExited();
+    public void dismountEvent(EntityDismountEvent e) {
+        CraftWither cw = (CraftWither) e.getDismounted();
 
-        if (cw.getHandle() instanceof RideableWither) {
-            e.setCancelled(true);
+        if(cw.getHandle() instanceof RideableWither) {
+        	// pretty much every custom version of spigot makes this event cancellable .-.
+        	RunnableBuilder.make(main).run(() -> setPassenger(pax));
+        	main.getListeners().getProtocolListener().setWitherEID(getId());
         }
     }
 
