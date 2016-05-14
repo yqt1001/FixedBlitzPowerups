@@ -1,81 +1,81 @@
 package mc.yqt.fixedpowerups.powerups.invoker;
 
 import mc.yqt.fixedpowerups.FixedPowerups;
+import mc.yqt.fixedpowerups.powerups.GeneratePowerup;
 import mc.yqt.fixedpowerups.powerups.Powerup;
+import mc.yqt.fixedpowerups.powerups.PowerupType;
+import mc.yqt.fixedpowerups.powerups.PowerupWrapper;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@GeneratePowerup
 public class Invoker extends Powerup {
 
-    private static Map<String, InvokerScroll> scrolls = new HashMap<>();
+    public Invoker(Player player) {
+        super(player);
 
-    public Invoker(FixedPowerups main, String name) {
-        super(main, name, new ItemStack(Material.PAPER), 0, 0, false);
-
-        scrolls.put("Death Curse", new DeathScroll(main));
+        name = "Invoker";
+        type = PowerupType.CORE;
+        icon = new ItemStack(Material.PAPER);
+        lengthInSeconds = 0;
     }
 
-    /**
-     * @return A map containing all staticly defined invoker scrolls
-     */
-    public static Map<String, InvokerScroll> getScrolls() {
-        return scrolls;
+    @Override
+    public void powerupActivate() {
+        for(PowerupWrapper is : main.list().type(PowerupType.INVOKER)) {
+            ItemStack i = is.getIcon();
+            ItemMeta im = i.getItemMeta();
+            im.setDisplayName(ChatColor.GREEN + is.getName());
+            im.setLore(is.getDescription());
+            i.setItemMeta(im);
+
+            player.getInventory().addItem(i);
+        }
     }
-    
-    public void onInteract(PlayerInteractEvent e) {
-    	if(!(e.getAction() == Action.RIGHT_CLICK_AIR) || !(e.getAction() == Action.RIGHT_CLICK_BLOCK)) 
+
+    @Override
+    public void powerupShutdown() {
+        // do literally nothing
+        return;
+    }
+
+	@Override
+	public boolean powerupValidate() {
+		// always run
+		return true;
+	}
+	
+	public static void onInteract(FixedPowerups main, PlayerInteractEvent e) {
+    	if(!(e.getAction() == Action.RIGHT_CLICK_AIR) && !(e.getAction() == Action.RIGHT_CLICK_BLOCK)) 
         	return;
         if(e.getItem().getItemMeta() == null || e.getItem().getItemMeta().getDisplayName() == null) 
         	return;
         
         String s = e.getItem().getItemMeta().getDisplayName().substring(2);
-        if(!Invoker.getScrolls().containsKey(s)) 
+        PowerupWrapper p;
+        if((p = main.getPowerup(s)) == null) 
         	return;
-        InvokerScroll is = Invoker.getScrolls().get(s);
-        
-        //check NMS is enabled, if scroll requires NMS
-        if (is.requiresNMS() && !FixedPowerups.getNMSState()) {
-            e.getPlayer().sendMessage(ChatColor.RED + "NMS is disabled!");
-            return;
-        }
 
         //activate scroll powerup
-        is.powerup(e.getPlayer());
+        p.launch(e.getPlayer());
 
         //remove all scrolls from inventory
-        for (ItemStack i : e.getPlayer().getInventory().getContents())
-            if(i.getType() == Material.PAPER)
-                if(i.getItemMeta() != null && i.getItemMeta().getDisplayName() != null) {
-                    s = i.getItemMeta().getDisplayName().substring(2);
-                    if(Invoker.getScrolls().containsKey(s))
-                        i.setAmount(0);
+        Inventory inv = e.getPlayer().getInventory();
+        for(int i = 0; i < 36; i++) {
+        	ItemStack item = inv.getItem(i);
+            if(item != null && item.getType() == Material.PAPER)
+                if(item.getItemMeta() != null && item.getItemMeta().getDisplayName() != null) {
+                    s = item.getItemMeta().getDisplayName().substring(2);
+                    if(main.getPowerup(s) != null)
+                        inv.setItem(i, new ItemStack(Material.AIR));
                 }
-    }
-
-    @Override
-    public void powerupActivate(Player p) {
-        for (InvokerScroll is : scrolls.values()) {
-            ItemStack i = is.getIdentifier();
-            ItemMeta im = i.getItemMeta();
-            im.setDisplayName(ChatColor.GREEN + is.getName());
-            im.setLore(is.getLore());
-            i.setItemMeta(im);
-
-            p.getInventory().addItem(i);
         }
-    }
-
-    @Override
-    public void powerupShutdown(Player p) {
-        // do literally nothing
-        return;
     }
 }

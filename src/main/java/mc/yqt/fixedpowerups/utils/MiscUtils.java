@@ -1,9 +1,14 @@
 package mc.yqt.fixedpowerups.utils;
 
+import java.util.Collection;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 
 public class MiscUtils {
@@ -12,8 +17,7 @@ public class MiscUtils {
 
     /**
      * Method for getting the surface at a certain x & y coordinate
-     *
-     * @param Location
+     * @param l location
      * @return New location
      */
     public static Location getSurface(Location l) {
@@ -26,6 +30,28 @@ public class MiscUtils {
         }
 
         return new Location(l.getWorld(), l.getX(), 257, l.getZ(), l.getYaw(), l.getPitch());
+    }
+    
+    /**
+     * Method to play a specific sound, volume and pitch to all players online at their locations.
+     * @param sound
+     * @param volume Float value from 0 to 1.
+     * @param pitch Float value from 0 to 1.
+     */
+    public static void playSound(Sound sound, float volume, float pitch) {
+    	playSound(sound, volume, pitch, Bukkit.getOnlinePlayers());
+    }
+    
+    /**
+     * Method to play a specific sound, volume and pitch to all given players at their locations.
+     * @param sound
+     * @param volume Float value from 0 to 1.
+     * @param pitch Float value from 0 to 1.
+     * @param players
+     */
+    public static void playSound(Sound sound, float volume, float pitch, Collection<? extends Player> players) {
+    	for(Player p : players) 
+    		p.playSound(p.getLocation(), sound, volume, pitch);
     }
 
     public static String modulate(String message) {

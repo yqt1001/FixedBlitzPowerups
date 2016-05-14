@@ -2,8 +2,9 @@ package mc.yqt.fixedpowerups;
 
 import mc.yqt.fixedpowerups.listeners.ListenerManager;
 import mc.yqt.fixedpowerups.powerups.Powerup;
-import mc.yqt.fixedpowerups.powerups.invoker.Invoker;
-import mc.yqt.fixedpowerups.powerups.witherwarrior.WitherWarrior;
+import mc.yqt.fixedpowerups.powerups.PowerupList;
+import mc.yqt.fixedpowerups.powerups.PowerupType;
+import mc.yqt.fixedpowerups.powerups.PowerupWrapper;
 import mc.yqt.fixedpowerups.utils.RunnableBuilder;
 import net.md_5.bungee.api.ChatColor;
 
@@ -17,8 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-
 public class FixedPowerups extends JavaPlugin {
 
     /**
@@ -28,7 +27,7 @@ public class FixedPowerups extends JavaPlugin {
     private static boolean NMSenabled = true;
 
     private ListenerManager listeners;
-    private HashMap<String, Powerup> powerups = new HashMap<String, Powerup>();
+    private PowerupList list;
     private Powerup powerupActive = null;
 
     /**
@@ -53,9 +52,8 @@ public class FixedPowerups extends JavaPlugin {
         if (!(Bukkit.getServer().getClass().getPackage().getName()).equals("org.bukkit.craftbukkit.v1_8_R3"))
             NMSenabled = false;
 
-        //add powerups to map
-        powerups.put("Invoker", new Invoker(this, "Invoker"));
-        powerups.put("Wither Warrior", new WitherWarrior(this, "Wither Warrior"));
+        // load powerups
+        list = new PowerupList(this);
 
         //create listeners
         listeners = new ListenerManager(this);
@@ -88,27 +86,25 @@ public class FixedPowerups extends JavaPlugin {
     /**
      * @return Map of powerups
      */
-    public HashMap<String, Powerup> getPowerups() {
-    	return powerups;
+    public PowerupList list() {
+    	return list;
     }
 
     /**
      * Opens up powerup GUI for specified player
-     *
-     * @param Player
+     * @param player
      */
     public void openPowerupGUI(Player p) {
         Inventory i = Bukkit.createInventory(p, 27, "Blitz Powerups");
 
         int index = 10;
-
-        for (Powerup pu : powerups.values()) {
-
+        
+        for(PowerupWrapper pu : list.type(PowerupType.CORE)) {
             //format item
-            ItemStack is = pu.getIdentifier();
+            ItemStack is = pu.getIcon();
             ItemMeta im = is.getItemMeta();
             im.setDisplayName(ChatColor.GREEN + pu.getName());
-            im.setLore(pu.getLore());
+            im.setLore(pu.getDescription());
             is.setItemMeta(im);
 
             //add item
@@ -132,6 +128,8 @@ public class FixedPowerups extends JavaPlugin {
     public void onGUIEvent(final InventoryClickEvent e) {
         e.setCancelled(true);
 
+        if(!(e.getWhoClicked() instanceof Player))
+        	return;
         if(e.getCurrentItem() == null) 
         	return;
         if(e.getCurrentItem().getItemMeta() == null) 
@@ -139,28 +137,16 @@ public class FixedPowerups extends JavaPlugin {
         if(e.getCurrentItem().getItemMeta().getDisplayName() == null) 
         	return;
 
-        //if there is a powerup currently active, stop now
-        if(powerupActive != null) {
-            e.getWhoClicked().sendMessage(ChatColor.RED + "Another powerup is currently active!");
-            return;
-        }
-
         //remove formatting
         String s = e.getCurrentItem().getItemMeta().getDisplayName().substring(2);
 
         //search for the specified powerup
-        Powerup p;
-        if((p = powerups.get(s)) == null)
+        PowerupWrapper p;
+        if((p = list.get(s)) == null)
             return;
-
-        //if it requires NMS, make sure it is enabled
-        if(p.requiresNMS() && !getNMSState()) {
-            e.getWhoClicked().sendMessage(ChatColor.RED + "NMS is disabled!");
-            return;
-        }
 
         //activate powerup
-        p.powerup((Player) e.getWhoClicked());
+        p.launch((Player) e.getWhoClicked());
 
         //successful, close inventory
         RunnableBuilder.make(this).run(() -> e.getWhoClicked().closeInventory());
@@ -201,20 +187,7 @@ public class FixedPowerups extends JavaPlugin {
      * @param name
      * @return Specified powerup from name
      */
-    public Powerup getPowerup(String name) {
-    	return powerups.get(name);
-    }
-    
-    /**
-     * {@link #getPowerup(String)} using generics.
-     * @param clazz
-     * @return The powerup from the given class
-     */
-    public <P extends Powerup> P getPowerup(Class<P> clazz) {
-    	for(Powerup p : powerups.values())
-    		if(clazz.isInstance(p))
-    			return clazz.cast(p);
-    	
-    	return null;
+    public PowerupWrapper getPowerup(String name) {
+    	return list.get(name);
     }
 }

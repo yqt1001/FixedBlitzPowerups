@@ -158,9 +158,7 @@ public class Title {
 
     /**
      * Sends specified players the packets to create the title
-     *
-     * @param List
-     *         of players
+     * @param players List of players
      */
     public void sendCreationPackets(Collection<? extends Player> players) {
         //set title
@@ -194,7 +192,6 @@ public class Title {
 
     /**
      * Sends the specified player the packets to create the title
-     *
      * @param Player
      */
     public void sendCreationPackets(Player p) {
@@ -202,17 +199,16 @@ public class Title {
     }
 
     /**
-     * Sends specified players an updated title packet
-     *
-     * @param List
-     *         of players
+     * Sends specified players an updated title packet. Updates title.
+     * @param players List of players
      * @return
      */
-    public Title sendTitlePacket(Collection<? extends Player> players) {
+    public Title sendTitlePacket(Collection<? extends Player> players, String title) {
+    	this.title = title;
         //set title
         PacketContainer p1 = PM.createPacket(PacketType.Play.Server.TITLE);
         p1.getTitleActions().write(0, TitleAction.TITLE);
-        p1.getChatComponents().write(0, WrappedChatComponent.fromText(this.title));
+        p1.getChatComponents().write(0, WrappedChatComponent.fromText(title));
 
         for (Player p : players) {
             try {
@@ -226,23 +222,39 @@ public class Title {
     }
 
     /**
-     * Sends the specified player an updated title packet
-     *
-     * @param Player
+     * Sends the specified player an updated title packet. Updates title.
+     * @param player
+     * @return
+     */
+    public Title sendTitlePacket(Player p, String title) {
+        return this.sendTitlePacket(new LinkedList<>(Collections.singletonList(p)), title);
+    }
+    
+    /**
+     * Sends the specified players an updated title packet.
+     * @param players
+     * @return
+     */
+    public Title sendTitlePacket(Collection<? extends Player> players) {
+    	return this.sendTitlePacket(players, this.title);
+    }
+    
+    /**
+     * Sends the specified
+     * @param player
      * @return
      */
     public Title sendTitlePacket(Player p) {
-        return this.sendTitlePacket(new LinkedList<>(Collections.singletonList(p)));
+    	return this.sendTitlePacket(p, this.title);
     }
 
     /**
-     * Send specified players an updated subtitle packet
-     *
-     * @param List
-     *         of players
+     * Send specified players an updated subtitle packet. Updates subtitle.
+     * @param players List of players
      * @return
      */
-    public Title sendSubtitlePacket(Collection<? extends Player> players) {
+    public Title sendSubtitlePacket(Collection<? extends Player> players, String subtitle) {
+    	this.subtitle = subtitle;
         //set subtitle
         PacketContainer p1 = PM.createPacket(PacketType.Play.Server.TITLE);
         p1.getTitleActions().write(0, TitleAction.SUBTITLE);
@@ -260,13 +272,30 @@ public class Title {
     }
 
     /**
-     * Sends the specified player an updated subtitle packet
-     *
-     * @param Player
+     * Sends the specified player an updated subtitle packet. Updates subtitle.
+     * @param player
+     * @return
+     */
+    public Title sendSubtitlePacket(Player p, String subtitle) {
+        return this.sendSubtitlePacket(new LinkedList<>(Collections.singletonList(p)), subtitle);
+    }
+    
+    /**
+     * Sends the specified players an updated subtitle packet.
+     * @param players
+     * @return
+     */
+    public Title sendSubtitlePacket(Collection<? extends Player> players) {
+    	return this.sendSubtitlePacket(players, subtitle);
+    }
+    
+    /**
+     * Sends the specified player an updated subtitle packet.
+     * @param player
      * @return
      */
     public Title sendSubtitlePacket(Player p) {
-        return this.sendSubtitlePacket(new LinkedList<>(Collections.singletonList(p)));
+    	return this.sendSubtitlePacket(p, subtitle);
     }
 
     /**
@@ -334,5 +363,19 @@ public class Title {
      */
     public void sendTitleClearPacket(Player p) {
         this.sendTitleClearPacket(new LinkedList<>(Collections.singletonList(p)));
+    }
+    
+    /**
+     * @return The title string
+     */
+    public String getTitle() {
+    	return title;
+    }
+    
+    /**
+     * @return The subtitle string
+     */
+    public String getSubtitle() {
+    	return subtitle;
     }
 }

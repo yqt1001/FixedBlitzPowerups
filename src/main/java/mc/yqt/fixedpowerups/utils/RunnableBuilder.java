@@ -13,7 +13,7 @@ import mc.yqt.fixedpowerups.FixedPowerups;
 public class RunnableBuilder {
 
 	private int delay = 1;
-	private int period = 0;
+	private int period = 1;
 	private FixedPowerups main;
 	private Runnable run;
 	
@@ -45,6 +45,8 @@ public class RunnableBuilder {
 	 * @return Builder
 	 */
 	public RunnableBuilder delay(int ticks) {
+		if(ticks < 1)
+			ticks = 1;
 		this.delay = ticks;
 		return this;
 	}
@@ -55,6 +57,8 @@ public class RunnableBuilder {
 	 * @return Builder
 	 */
 	public RunnableBuilder interval(int ticks) {
+		if(ticks < 1)
+			ticks = 1;
 		this.period = ticks;
 		return this;
 	}

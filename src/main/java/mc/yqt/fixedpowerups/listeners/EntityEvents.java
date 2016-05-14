@@ -22,7 +22,7 @@ public class EntityEvents implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         //invoker scroll interact
         if(e.hasItem() && e.getItem().getType() == Material.PAPER)
-        	main.getPowerup(Invoker.class).onInteract(e);
+        	Invoker.onInteract(main, e);
     }
 
     @EventHandler

@@ -3,6 +3,7 @@ package mc.yqt.fixedpowerups.powerups;
 import mc.yqt.fixedpowerups.FixedPowerups;
 import mc.yqt.fixedpowerups.utils.MiscUtils;
 import mc.yqt.fixedpowerups.utils.RunnableBuilder;
+import net.md_5.bungee.api.ChatColor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -11,73 +12,77 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class Powerup {
 
-    private String name;
-    private List<String> lore;
-    private ItemStack identifier;
-    private boolean reqNMS;
-    private boolean canceled;
+    protected String name;
+    protected List<String> lore;
+    protected ItemStack icon;
+    protected PowerupType type;
+    protected boolean canceled;
 
-    private int lengthInSeconds;
-    private int runtimeDelayInTicks;
+    protected int lengthInSeconds;
+    protected int runtimeDelayInSeconds;
+    protected int runtimePeriodInTicks;
     private BukkitTask runtime;
+    private boolean reqNMS;
 
-    private FixedPowerups main;
-
-    public Powerup(FixedPowerups main, String s1, ItemStack id, int length, int runtimeDelay, boolean nms) {
-        this.main = main;
-        this.name = s1;
-        this.identifier = id;
-        this.reqNMS = nms;
-        this.canceled = false;
-        this.lengthInSeconds = length;
-        this.runtimeDelayInTicks = runtimeDelay;
-        this.lore = null;
+    protected FixedPowerups main;
+    protected Player player;
+    
+    public Powerup(Player player) {
+    	this.player = player;
+    	this.canceled = false;
+    	this.reqNMS = false;
+    	this.lengthInSeconds = -1;
+    	this.runtimeDelayInSeconds = 0;
+    	this.runtimePeriodInTicks = 0;
+    	this.lore = null;
     }
 
     //required powerup methods
-    public abstract void powerupActivate(Player p);
-    public abstract void powerupShutdown(Player p);
-
-    public String getName() {
-        return this.name;
-    }
-
-    public List<String> getLore() {
-        return this.lore;
-    }
-
-    public void setLore(List<String> lore) {
-        this.lore = lore;
-    }
-
-    public ItemStack getIdentifier() {
-        return this.identifier;
-    }
-
-    public boolean requiresNMS() {
-        return this.reqNMS;
-    }
-
-    public boolean isCanceled() {
-        return this.canceled;
-    }
+    public abstract boolean powerupValidate();
+    public abstract void powerupActivate();
+    public abstract void powerupShutdown();
 
     public void cancel() {
         this.canceled = true;
-        if (this.runtime != null) this.runtime.cancel();
+        if(this.runtime != null) this.runtime.cancel();
         this.runtime = null;
         this.main.setActive(null);
     }
-
-    //if this method will not be overwritten, be sure to pass 0 runtime delay through the constructor
-    public void powerupRuntime(Player p) {
+    
+    /**
+     * Validates that the powerup is ready to launch and then launches if true.
+     * Call {@link #powerup(Player)} to force run.
+     * @param player
+     */
+    public void launch() {
+    	if(main.getActive() != null) {
+    		player.sendMessage(ChatColor.RED + "Another powerup is currently active!");
+    		return;
+    	}
+    	
+    	if(reqNMS && !FixedPowerups.getNMSState()) {
+            player.sendMessage(ChatColor.RED + "NMS is disabled!");
+            return;
+        }
+    	
+    	if(!powerupValidate()) {
+    		return;
+    	}
+    	
+    	// it is safe to launch the powerup now
+    	powerup();
     }
 
-    public void powerup(final Player p) {
+    //if this method will not be overwritten, be sure to pass 0 runtime delay through the constructor
+    public void powerupRuntime() {
+    }
+
+    public void powerup() {
         /* Main powerup method, split into three parts
 		 * ACTIVATE: Runs once activated
 		 * RUNTIME: Bukkit runnable that runs while the powerup is active, determined by the delay given in constructor
@@ -85,17 +90,20 @@ public abstract class Powerup {
 		 */
 
         //activate
-        Bukkit.broadcastMessage(MiscUtils.modulate(p.getName() + " has activated the" + MiscUtils.encapsulate(this.name) + " powerup!"));
+        Bukkit.broadcastMessage(MiscUtils.modulate(player.getName() + " has activated the " + MiscUtils.encapsulate(this.name) + " powerup!"));
         this.main.setActive(this);
         //give player regen 2 for 30 seconds as standard
-        p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1), true);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 1), true);
 
-        this.powerupActivate(p);
+        this.powerupActivate();
 
 
         //runtime runnable
-        if (this.runtimeDelayInTicks > 0)
-        	runtime = RunnableBuilder.make(main).delay(runtimeDelayInTicks).run(() -> powerupRuntime(p));
+        if(this.runtimeDelayInSeconds > 0)
+        	if(this.runtimePeriodInTicks > 0)
+        		runtime = RunnableBuilder.make(main).delay(runtimeDelayInSeconds * 20).interval(runtimePeriodInTicks).unlim().run(() -> powerupRuntime());
+        	else
+        		runtime = RunnableBuilder.make(main).delay(runtimeDelayInSeconds * 20).run(() -> powerupRuntime());
 
 
         //shutdown runnable
@@ -103,7 +111,7 @@ public abstract class Powerup {
         	if(canceled)
                 return;
 
-            powerupShutdown(p);
+            powerupShutdown();
 
             if(runtime != null) {
                 runtime.cancel();
@@ -115,5 +123,53 @@ public abstract class Powerup {
             if(lengthInSeconds > 0)
                 Bukkit.broadcastMessage(MiscUtils.modulate("The " + MiscUtils.encapsulate(name) + " powerup has been disabled."));
         });
+    }
+    
+    public boolean isWrapper() {
+    	return player == null;
+    }
+    
+    public String getName() {
+        return this.name;
+    }
+
+    public void setLore(List<String> lore) {
+        this.lore = lore;
+    }
+    
+    public void setLore(String ... strings) {
+    	this.lore = Arrays.asList(strings);
+    }
+    
+    public List<String> getLore() {
+        return this.lore;
+    }
+    
+    public ItemStack getIcon() {
+    	return icon;
+    }
+    
+    public PowerupType getType() {
+    	return type;
+    }
+    
+    /**
+  	 * Sets whether this powerup uses NMS code.
+     * @param req
+     */
+    public void nms(boolean req) {
+    	this.reqNMS = req;
+    }
+
+    public boolean requiresNMS() {
+        return this.reqNMS;
+    }
+
+    public boolean isCanceled() {
+        return this.canceled;
+    }
+    
+    public void setMain(FixedPowerups main) {
+    	this.main = main;
     }
 }
