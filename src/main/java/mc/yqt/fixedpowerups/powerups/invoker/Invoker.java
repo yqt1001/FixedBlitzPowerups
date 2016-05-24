@@ -63,10 +63,11 @@ public class Invoker extends Powerup {
         if((p = main.getPowerup(s)) == null) 
         	return;
 
-        //activate scroll powerup
-        p.launch(e.getPlayer());
+        // activate scroll powerup
+        if(!p.launch(e.getPlayer()))
+        	return;
 
-        //remove all scrolls from inventory
+        // remove all scrolls from inventory if the powerup launched correctly
         Inventory inv = e.getPlayer().getInventory();
         for(int i = 0; i < 36; i++) {
         	ItemStack item = inv.getItem(i);

@@ -46,7 +46,7 @@ public class MiscUtils {
      * Method to play a specific sound, volume and pitch to all given players at their locations.
      * @param sound
      * @param volume Float value from 0 to 1.
-     * @param pitch Float value from 0 to 1.
+     * @param pitch Float value from 0.5 to 2.
      * @param players
      */
     public static void playSound(Sound sound, float volume, float pitch, Collection<? extends Player> players) {

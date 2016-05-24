@@ -8,6 +8,7 @@ import mc.yqt.fixedpowerups.utils.Title;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -19,7 +20,7 @@ public class DeathScroll extends InvokerScroll {
 
 	private static final int RUNTIME_DELAY = 10; // in seconds
 	private static final int RUNTIME_LENGTH = 70; // in seconds
-	private static final int RUNTIME_PERIOD = 20; // in ticks
+	private static final int RUNTIME_PERIOD = 40; // in ticks
 	private static final int LENGTH = RUNTIME_DELAY + RUNTIME_LENGTH;
 	
 	private Player target;
@@ -47,30 +48,46 @@ public class DeathScroll extends InvokerScroll {
     	title.sendCreationPackets(activePlayers);
     	
     	// runnable that randomizes which player will be selected
-        RunnableBuilder.make(main).limit(RUNTIME_DELAY * 20).run(() -> {
-        	if(counter % moduloVal == 0) {
-        		// retrieve a new player using the modulo function
-        		target = activePlayers.get(changed % activePlayers.size());
-        		if(target.equals(player))
-        			target = activePlayers.get((changed++) % activePlayers.size());
-        		
-        		// update everyone's title
-        		title.sendSubtitlePacket(activePlayers, ChatColor.RED + target.getName());
-        		MiscUtils.playSound(Sound.NOTE_PLING, 0.5f, 0.8f, activePlayers);
-        		changed++;
-        	}
+        RunnableBuilder.make(main).limit(RUNTIME_DELAY * 20).run(new Runnable() {
+        	// for some reason, reflections is not loading classes with Java 8 code: .run(() -> { });
         	
-        	counter++;
-        	if(counter % 10 == 0)
-        		moduloVal++;
+        	@Override
+        	public void run() {
+	        	if(counter % moduloVal == 0) {
+	        		// retrieve a new player using the modulo function
+	        		target = activePlayers.get(changed % activePlayers.size());
+	        		
+	        		// if the target is the activated player, just randomize until there's a unique player
+	        		Random r = new Random();
+	        		while(target.equals(player))
+	        			target = activePlayers.get(r.nextInt(activePlayers.size()));
+	        		
+	        		// update everyone's title
+	        		title.sendSubtitlePacket(activePlayers, ChatColor.RED + target.getName());
+	        		MiscUtils.playSound(Sound.NOTE_PLING, 0.5f, 0.8f, activePlayers);
+	        		changed++;
+	        	}
+	        	
+	        	counter++;
+	        	if(counter % 10 == 0)
+	        		moduloVal++;
+        	}
         });
         
         // runnable that sets up 
+        RunnableBuilder.make(main).delay(RUNTIME_DELAY * 20).run(new Runnable() {
+        	// for some reason, reflections is not loading classes with Java 8 code: .run(() -> { });
+        	
+			@Override
+			public void run() {
+				Bukkit.broadcastMessage(MiscUtils.modulate("Target is: " + target.getName()));
+			}
+        });
     }
     
     @Override
     public void powerupRuntime() {
-    	Bukkit.broadcastMessage(MiscUtils.modulate("Target is: " + target.getName()));
+    	//Bukkit.broadcastMessage(MiscUtils.modulate("Target is: " + target.getName()));
     }
 
     @Override

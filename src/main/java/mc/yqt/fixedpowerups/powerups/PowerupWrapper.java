@@ -28,14 +28,15 @@ public class PowerupWrapper {
 		}
 	}
 	
-	public void launch(Player player) {
+	public boolean launch(Player player) {
 		try {
 			Powerup p = create(player);
 			p.main = main;
-			p.launch();
+			 return p.launch();
 		} catch(Exception e) {
 			player.sendMessage(ChatColor.RED + "Something went wrong!");
 			e.printStackTrace();
+			return false;
 		}
 	}
 	

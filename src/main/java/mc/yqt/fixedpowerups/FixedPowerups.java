@@ -48,14 +48,14 @@ public class FixedPowerups extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        //simple NMS version checker to avoid obvious NMS errors
+        // simple NMS version checker to avoid obvious NMS errors
         if (!(Bukkit.getServer().getClass().getPackage().getName()).equals("org.bukkit.craftbukkit.v1_8_R3"))
             NMSenabled = false;
 
         // load powerups
         list = new PowerupList(this);
 
-        //create listeners
+        // create listeners
         listeners = new ListenerManager(this);
     }
 
@@ -84,7 +84,7 @@ public class FixedPowerups extends JavaPlugin {
     }
     
     /**
-     * @return Map of powerups
+     * @return The list of generated powerups
      */
     public PowerupList list() {
     	return list;

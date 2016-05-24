@@ -1,5 +1,7 @@
 package mc.yqt.fixedpowerups.utils;
 
+import java.util.function.BooleanSupplier;
+
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -16,6 +18,7 @@ public class RunnableBuilder {
 	private int period = 1;
 	private FixedPowerups main;
 	private Runnable run;
+	private BooleanSupplier cancelable;
 	
 	private int cycles = 1;
 	private int cycled = 0;
@@ -103,6 +106,28 @@ public class RunnableBuilder {
 			return buildDelayedTask();
 	}
 	
+	/**
+	 * Starts the given boolean supplier. 
+	 * If the given supplier returns false, the task will stop repeating no matter how many cycles it has left.
+	 * @param run
+	 * @return The generated task
+	 */
+	public BukkitTask cancelable(BooleanSupplier run) {
+		this.cancelable = run;
+		
+		// make unlimited timer
+		if(cycles < 1)
+			return buildUnlimCancelableTimer();
+		
+		// make cycle limited timer
+		else if(cycles > 1)
+			return buildLimCancelableTimer();
+		
+		// make delayed task
+		else
+			return buildDelayedCancelableTask();
+	}
+	
 	private BukkitTask buildLimitedTimer() {
 		return new BukkitRunnable() {
 			@Override
@@ -133,6 +158,44 @@ public class RunnableBuilder {
 			@Override
 			public void run() {
 				run.run();
+			}
+		}.runTaskLater(main, delay);
+	}
+	
+	private BukkitTask buildLimCancelableTimer() {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				if(cycles <= cycled) {
+					cancel();
+					return;
+				}
+				
+				cycled++;
+				
+				if(!cancelable.getAsBoolean())
+					cancel();
+			}
+		}.runTaskTimer(main, delay, period);
+	}
+	
+	private BukkitTask buildUnlimCancelableTimer() {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				if(!cancelable.getAsBoolean())
+					cancel();
+			}
+		}.runTaskTimer(main, delay, period);
+	}
+	
+	private BukkitTask buildDelayedCancelableTask() {
+		// this doesn't really make sense since it will never repeat but I like consistency
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				if(!cancelable.getAsBoolean())
+					cancel();
 			}
 		}.runTaskLater(main, delay);
 	}

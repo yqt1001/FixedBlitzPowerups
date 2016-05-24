@@ -59,28 +59,30 @@ public abstract class Powerup {
      * Call {@link #powerup(Player)} to force run.
      * @param player
      */
-    public void launch() {
+    public boolean launch() {
     	if(main.getActive() != null) {
     		player.sendMessage(ChatColor.RED + "Another powerup is currently active!");
-    		return;
+    		return false;
     	}
     	
     	if(reqNMS && !FixedPowerups.getNMSState()) {
             player.sendMessage(ChatColor.RED + "NMS is disabled!");
-            return;
+            return false;
         }
     	
     	if(!powerupValidate()) {
-    		return;
+    		return false;
     	}
     	
     	// it is safe to launch the powerup now
     	powerup();
+    	return true;
     }
 
-    //if this method will not be overwritten, be sure to pass 0 runtime delay through the constructor
-    public void powerupRuntime() {
-    }
+    /**
+     * If this method will not be overwritten, be sure to pass 0 runtime delay through the constructor
+     */
+    public void powerupRuntime() { }
 
     public void powerup() {
         /* Main powerup method, split into three parts
@@ -154,7 +156,7 @@ public abstract class Powerup {
     }
     
     /**
-  	 * Sets whether this powerup uses NMS code.
+     * Sets whether this powerup uses NMS code.
      * @param req
      */
     public void nms(boolean req) {

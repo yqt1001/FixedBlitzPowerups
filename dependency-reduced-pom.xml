@@ -13,7 +13,16 @@
     </resources>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.3</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -23,6 +32,8 @@
           </execution>
         </executions>
         <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
           <artifactSet>
             <includes>
               <include>org.reflections:reflections</include>
