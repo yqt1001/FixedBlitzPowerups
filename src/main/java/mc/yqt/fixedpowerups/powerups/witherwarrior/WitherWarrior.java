@@ -5,7 +5,7 @@ import mc.yqt.fixedpowerups.powerups.GeneratePowerup;
 import mc.yqt.fixedpowerups.powerups.Powerup;
 import mc.yqt.fixedpowerups.powerups.PowerupType;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither.WitherTypes;
-import mc.yqt.fixedpowerups.utils.MiscUtils;
+import mc.yqt.fixedpowerups.utils.Util;
 import mc.yqt.fixedpowerups.utils.NMSEntities;
 import mc.yqt.fixedpowerups.utils.Title;
 import org.bukkit.Bukkit;
@@ -15,8 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Random;
 
 @GeneratePowerup
 public class WitherWarrior extends Powerup {
@@ -43,10 +41,10 @@ public class WitherWarrior extends Powerup {
     public void powerupActivate() {
         try {
             //get random wither type
-            WitherTypes type = WitherTypes.values()[new Random().nextInt(WitherTypes.values().length)];
+            WitherTypes type = WitherTypes.values()[Util.randInt(WitherTypes.values().length)];
 
             //spawn wither and set player as passenger
-            this.wither = (RideableWither) NMSEntities.spawnEntity(new RideableWither(this.main, player.getWorld(), type), MiscUtils.getSurface(player.getLocation()));
+            this.wither = (RideableWither) NMSEntities.spawnEntity(new RideableWither(this.main, player.getWorld(), type), Util.getSurface(player.getLocation()));
             this.wither.setPassenger(player);
             this.wither.setHealth(type.getType().getMaxHealth());
 
@@ -74,7 +72,7 @@ public class WitherWarrior extends Powerup {
     	
         //shut off the powerup
         wither.die();
-        player.teleport(MiscUtils.getSurface(player.getLocation()));
+        player.teleport(Util.getSurface(player.getLocation()));
 
         //remove wither skulls
         for(Entity e : player.getWorld().getEntities()) {
@@ -90,6 +88,18 @@ public class WitherWarrior extends Powerup {
     public boolean powerupValidate() {
     	// always true
     	return true;
+    }
+    
+    @Override
+    public void playerQuit(Player player) {
+    	// if the player riding the wither quits
+    	if(!player.equals(this.player))
+    		return;
+    	
+    	// remove the wither
+    	wither.getBukkitEntity().remove();
+    	
+    	stop();
     }
 
     /**

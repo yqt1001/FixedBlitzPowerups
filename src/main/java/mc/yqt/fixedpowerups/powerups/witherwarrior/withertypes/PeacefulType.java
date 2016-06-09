@@ -3,7 +3,7 @@ package mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.HarmlessWitherSkull;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither;
-import mc.yqt.fixedpowerups.utils.Particles;
+import mc.yqt.fixedpowerups.utils.ProtocolUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
@@ -31,7 +31,7 @@ public class PeacefulType extends WitherType {
     @Override
     public void attackCosmetic(HarmlessWitherSkull e) {
         //spawn heart particles on ground
-        Particles.spawnParticle(Particle.HEART, e.getBukkitEntity().getLocation(), new Vector(3, 0, 3), 15);
+        ProtocolUtil.spawnParticle(Particle.HEART, e.getBukkitEntity().getLocation(), new Vector(3, 0, 3), 15);
     }
 
 }

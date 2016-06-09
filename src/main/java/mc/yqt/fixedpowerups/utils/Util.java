@@ -1,6 +1,8 @@
 package mc.yqt.fixedpowerups.utils;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,9 +13,26 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 
-public class MiscUtils {
+public class Util {
 
 	/* Class for just anything random that I need */
+	private static final Random random = new Random();
+	
+	public static Random rand() {
+		return random;
+	}
+	
+	public static int randInt(int bound) {
+		return random.nextInt(bound);
+	}
+	
+	/**
+	 * @param list
+	 * @return A randomly selected element from this list.
+	 */
+	public static <T> T randElement(List<T> list) {
+		return list.get(random.nextInt(list.size()));
+	}
 
     /**
      * Method for getting the surface at a certain x & y coordinate
@@ -52,6 +71,25 @@ public class MiscUtils {
     public static void playSound(Sound sound, float volume, float pitch, Collection<? extends Player> players) {
     	for(Player p : players) 
     		p.playSound(p.getLocation(), sound, volume, pitch);
+    }
+    
+    /**
+     * Randomizes the location very slightly (random gaussian value / 3). 
+     * Perfect for cosmetic trails.
+     * @param location
+     * @return The new location.
+     */
+    public static Location randomizeSlightly(Location location) {
+    	return location.clone().add(random.nextGaussian() / 3d, random.nextGaussian() / 3d, random.nextGaussian() / 3d);
+    }
+    
+    /**
+     * Randomizes the location (random gaussian value * 2).
+     * @param location
+     * @return The new location.
+     */
+    public static Location randomize(Location location) {
+    	return location.clone().add(random.nextGaussian() * 2d, random.nextGaussian() * 2d, random.nextGaussian() * 2d);
     }
 
     public static String modulate(String message) {

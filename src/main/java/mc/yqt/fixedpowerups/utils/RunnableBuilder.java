@@ -107,7 +107,7 @@ public class RunnableBuilder {
 	}
 	
 	/**
-	 * Starts the given boolean supplier. 
+	 * Starts the given boolean supplier in the runnable.
 	 * If the given supplier returns false, the task will stop repeating no matter how many cycles it has left.
 	 * @param run
 	 * @return The generated task

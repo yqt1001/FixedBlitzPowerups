@@ -3,7 +3,7 @@ package mc.yqt.fixedpowerups.powerups.witherwarrior.withertypes;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.HarmlessWitherSkull;
 import mc.yqt.fixedpowerups.powerups.witherwarrior.RideableWither;
-import mc.yqt.fixedpowerups.utils.Particles;
+import mc.yqt.fixedpowerups.utils.ProtocolUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -36,7 +36,7 @@ public class AngryType extends WitherType {
     @Override
     public void attackCosmetic(HarmlessWitherSkull e) {
         //spawn coal block breaking particles on ground
-        Particles.spawnParticle(Particle.BLOCK_CRACK, e.getBukkitEntity().getLocation(), new Vector(2, 0, 2), 10, new int[]{173});
+        ProtocolUtil.spawnParticle(Particle.BLOCK_CRACK, e.getBukkitEntity().getLocation(), new Vector(2, 0, 2), 10, new int[]{173});
     }
 
 }

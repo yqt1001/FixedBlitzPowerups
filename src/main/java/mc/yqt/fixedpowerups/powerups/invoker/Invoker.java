@@ -52,6 +52,11 @@ public class Invoker extends Powerup {
 		return true;
 	}
 	
+	@Override
+	public void playerQuit(Player player) {
+		// doesn't matter
+	}
+	
 	public static void onInteract(FixedPowerups main, PlayerInteractEvent e) {
     	if(!(e.getAction() == Action.RIGHT_CLICK_AIR) && !(e.getAction() == Action.RIGHT_CLICK_BLOCK)) 
         	return;

@@ -39,7 +39,6 @@ public class PowerupList implements Iterable<PowerupWrapper> {
 	private void generate() {
 		// find all classes annotated with @GeneratePowerup
     	Reflections ref = new Reflections("mc.yqt.fixedpowerups.powerups");
-    	System.out.println(ref.getTypesAnnotatedWith(GeneratePowerup.class));
     	
     	LinkedList<Class<? extends Powerup>> classes = new LinkedList<>();
     	for(Class<?> clazz : ref.getTypesAnnotatedWith(GeneratePowerup.class))
